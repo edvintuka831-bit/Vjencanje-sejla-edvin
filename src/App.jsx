@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import Countdown from './components/Countdown.jsx'
 import Envelope from './components/Envelope.jsx'
 import Finale from './components/Finale.jsx'
 import Hero from './components/Hero.jsx'
-import MusicButton from './components/MusicButton.jsx'
+import MusicControls from './components/MusicButton.jsx'
 import { OrnamentDefs } from './components/Ornaments.jsx'
 import Particles from './components/Particles.jsx'
+import { FallingPetals } from './components/Petals.jsx'
 import Rsvp from './components/Rsvp.jsx'
 import SaveTheDate from './components/SaveTheDate.jsx'
 import Timeline from './components/Timeline.jsx'
@@ -33,13 +33,13 @@ export default function App() {
       <OrnamentDefs />
       <div className="bg" aria-hidden="true" />
       <Particles />
+      <FallingPetals />
 
       {!opened && <Envelope onStart={music.play} onDone={() => setOpened(true)} />}
 
       {opened && (
         <main className="invitation">
           <Hero />
-          <Countdown />
           <Timeline />
           <SaveTheDate notify={notify} />
           <Rsvp notify={notify} />
@@ -47,7 +47,7 @@ export default function App() {
         </main>
       )}
 
-      {music.available && <MusicButton playing={music.playing} onToggle={music.toggle} />}
+      {opened && <MusicControls music={music} />}
 
       <div className={`toast ${toast ? 'is-shown' : ''}`} role="status" aria-live="polite">{toast}</div>
     </>

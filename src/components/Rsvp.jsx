@@ -1,13 +1,12 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { CONTACTS, DATE_TEXT } from '../config.js'
 import { copyText } from '../utils/clipboard.js'
 import { isInAppBrowser, watchAppLaunch } from '../utils/appLaunch.js'
-import AppHint from './AppHint.jsx'
 import { buildRsvpMessage, smsLink, viberChatLink, viberForwardLink, whatsappLink } from '../utils/rsvp.js'
+import AppHint from './AppHint.jsx'
 import Icon from './Icons.jsx'
 import { Divider } from './Ornaments.jsx'
 import Section from './Section.jsx'
-import Sheet from './Sheet.jsx'
 
 const MAX_GUESTS = 10
 
@@ -16,30 +15,32 @@ export default function Rsvp({ notify }) {
   const [attending, setAttending] = useState(null)
   const [guests, setGuests] = useState(1)
   const [note, setNote] = useState('')
+  const [to, setTo] = useState(null)
   const [errors, setErrors] = useState({})
-  const [open, setOpen] = useState(false)
-  const [sentTo, setSentTo] = useState(null)
-  const [copied, setCopied] = useState(false)
-  const [sentVia, setSentVia] = useState(null)
+  const [sent, setSent] = useState(null) // { app, contact }
   const [failedApp, setFailedApp] = useState(null)
+  const [copied, setCopied] = useState(false)
+  const formRef = useRef(null)
+  const statusRef = useRef(null)
 
+  const contact = CONTACTS.find((c) => c.id === to)
   const message = useMemo(
     () => buildRsvpMessage({ name, attending: attending === true, guests, note }),
     [name, attending, guests, note],
   )
 
-  const submit = (e) => {
-    e.preventDefault()
+  const validate = () => {
     const next = {}
     if (name.trim().length < 2) next.name = 'Molimo upišite ime i prezime.'
     if (attending === null) next.attending = 'Molimo odaberite da li dolazite.'
+    if (!to) next.to = 'Molimo odaberite kome šaljete potvrdu.'
     setErrors(next)
-    if (Object.keys(next).length) return
-    setSentTo(null)
-    setSentVia(null)
-    setCopied(false)
-    setFailedApp(null)
-    setOpen(true)
+    if (Object.keys(next).length) {
+      const first = formRef.current?.querySelector('[data-field="' + Object.keys(next)[0] + '"]')
+      first?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      return false
+    }
+    return true
   }
 
   const copy = async () => {
@@ -49,38 +50,47 @@ export default function Rsvp({ notify }) {
     return ok
   }
 
-  // Link se otvara normalno (pravi <a>); poruka se uz to kopira kao rezerva.
-  const openApp = (contact, app) => {
+  // Pravi <a> link otvara aplikaciju; ovdje samo provjera forme i uputstvo.
+  const onSend = (app) => (e) => {
+    if (!validate()) {
+      e.preventDefault()
+      return
+    }
     if (app === 'Viber') copy()
-    setSentTo(contact)
-    setSentVia(app)
+    setSent({ app, contact })
     setFailedApp(null)
     watchAppLaunch(() => setFailedApp(app))
+    setTimeout(() => statusRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 400)
   }
-  const waTarget = isInAppBrowser() ? undefined : '_blank'
-  // Na iPhoneu WhatsApp pouzdano otvara razgovor, pa ide prvi; na Androidu Viber.
-  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
 
-  const recipient = sentTo && CONTACTS.find((c) => c.id === sentTo.id)
+  const reset = (setter) => (value) => {
+    setter(value)
+    setSent(null)
+    setFailedApp(null)
+    setCopied(false)
+  }
+
+  const viberHref = contact ? viberChatLink(contact.phone) : '#potvrda'
+  const waHref = contact ? whatsappLink(contact.phone, message) : '#potvrda'
+  const waTarget = contact && !isInAppBrowser() ? '_blank' : undefined
 
   return (
     <Section id="potvrda" className="rsvp">
       <div className="card rsvp-card">
         <p className="eyebrow">Potvrda dolaska</p>
-        <h2 className="section-title">Vaše prisustvo učinit će naš dan još posebnijim.</h2>
+        <h2 className="section-title">Radujemo se Vašem dolasku!</h2>
         <p className="rsvp-deadline">
-          Molimo Vas da potvrdite svoj dolazak najkasnije do <strong>{DATE_TEXT.rsvpDeadline}</strong>
+          Molimo Vas da svoj dolazak potvrdite najkasnije do <strong>{DATE_TEXT.rsvpDeadline}</strong>
         </p>
         <Divider />
 
-        <form className="form" onSubmit={submit} noValidate>
-          <label className="field">
+        <div className="form" ref={formRef}>
+          <label className="field" data-field="name">
             <span className="field-label">Ime i prezime</span>
             <input
               type="text"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => reset(setName)(e.target.value)}
               autoComplete="name"
               placeholder="Upišite ime i prezime"
               aria-invalid={!!errors.name}
@@ -89,14 +99,14 @@ export default function Rsvp({ notify }) {
             {errors.name && <span className="field-error">{errors.name}</span>}
           </label>
 
-          <fieldset className="field">
+          <fieldset className="field" data-field="attending">
             <legend className="field-label">Dolazak</legend>
             <div className="choice-row">
-              <button type="button" className={`choice ${attending === true ? 'is-active' : ''}`} aria-pressed={attending === true} onClick={() => setAttending(true)}>
+              <button type="button" className={`choice ${attending === true ? 'is-active' : ''}`} aria-pressed={attending === true} onClick={() => reset(setAttending)(true)}>
                 Dolazim
               </button>
-              <button type="button" className={`choice ${attending === false ? 'is-active' : ''}`} aria-pressed={attending === false} onClick={() => setAttending(false)}>
-                Ne mogu doći
+              <button type="button" className={`choice ${attending === false ? 'is-active' : ''}`} aria-pressed={attending === false} onClick={() => reset(setAttending)(false)}>
+                Nisam u mogućnosti doći
               </button>
             </div>
             {errors.attending && <span className="field-error">{errors.attending}</span>}
@@ -106,11 +116,11 @@ export default function Rsvp({ notify }) {
             <div className="field">
               <span className="field-label" id="guests-label">Broj osoba</span>
               <div className="stepper" role="group" aria-labelledby="guests-label">
-                <button type="button" onClick={() => setGuests((g) => Math.max(1, g - 1))} disabled={guests <= 1} aria-label="Smanji broj osoba">
+                <button type="button" onClick={() => reset(setGuests)(Math.max(1, guests - 1))} disabled={guests <= 1} aria-label="Smanji broj osoba">
                   <Icon name="minus" size={20} />
                 </button>
                 <output aria-live="polite">{guests}</output>
-                <button type="button" onClick={() => setGuests((g) => Math.min(MAX_GUESTS, g + 1))} disabled={guests >= MAX_GUESTS} aria-label="Povećaj broj osoba">
+                <button type="button" onClick={() => reset(setGuests)(Math.min(MAX_GUESTS, guests + 1))} disabled={guests >= MAX_GUESTS} aria-label="Povećaj broj osoba">
                   <Icon name="plus" size={20} />
                 </button>
               </div>
@@ -119,75 +129,81 @@ export default function Rsvp({ notify }) {
 
           <label className="field">
             <span className="field-label">Poruka mladencima <small>(neobavezno)</small></span>
-            <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} maxLength={500} placeholder="Vaše čestitke i želje..." />
+            <textarea value={note} onChange={(e) => reset(setNote)(e.target.value)} rows={3} maxLength={500} placeholder="Vaše čestitke i želje..." />
           </label>
 
-          <button type="submit" className="btn btn-gold btn-lg">Potvrdi dolazak</button>
-        </form>
+          <fieldset className="field" data-field="to">
+            <legend className="field-label">Kome šaljete potvrdu?</legend>
+            <div className="choice-row">
+              {CONTACTS.map((c) => (
+                <button key={c.id} type="button" className={`choice choice-person ${to === c.id ? 'is-active' : ''}`} aria-pressed={to === c.id} onClick={() => reset(setTo)(c.id)}>
+                  <b>{c.name}</b>
+                  <small>{c.display}</small>
+                </button>
+              ))}
+            </div>
+            {errors.to && <span className="field-error">{errors.to}</span>}
+          </fieldset>
+
+          <div className="send-buttons">
+            <a className="btn btn-viber btn-lg" href={viberHref} onClick={onSend('Viber')}>
+              <Icon name="viber" size={24} /> Potvrdi putem Vibera
+            </a>
+            <a className="btn btn-whatsapp btn-lg" href={waHref} target={waTarget} rel="noopener noreferrer" onClick={onSend('WhatsApp')}>
+              <Icon name="whatsapp" size={24} /> Potvrdi putem WhatsAppa
+            </a>
+          </div>
+
+          <div ref={statusRef}>
+            {sent?.app === 'WhatsApp' && (
+              <div className="howto howto-wa" role="status">
+                <p className="howto-title"><Icon name="check" size={18} /> Otvara se WhatsApp – {sent.contact.name}, {sent.contact.display}</p>
+                <ol>
+                  <li>Poruka je već upisana u razgovor.</li>
+                  <li>Pritisnite <b>Pošalji</b> u WhatsAppu. Potvrda je poslana tek tada.</li>
+                </ol>
+              </div>
+            )}
+            {sent?.app === 'Viber' && (
+              <div className="howto" role="status">
+                <p className="howto-title"><Icon name="check" size={18} /> Otvara se Viber – {sent.contact.name}, {sent.contact.display}</p>
+                <ol>
+                  <li>Poruka je kopirana. Viber ne dozvoljava da je upišemo umjesto Vas.</li>
+                  <li>U razgovoru dugo pritisnite polje za poruku i odaberite <b>Zalijepi</b>.</li>
+                  <li>Pritisnite <b>Pošalji</b>. Potvrda je poslana tek tada.</li>
+                </ol>
+              </div>
+            )}
+            {failedApp && <AppHint app={failedApp} />}
+          </div>
+
+          {sent && (
+            <div className="preview">
+              <div className="preview-head">
+                <span>Vaša poruka</span>
+                <button type="button" className="btn btn-ghost btn-sm" onClick={copy}>
+                  <Icon name={copied ? 'check' : 'copy'} size={16} /> {copied ? 'Kopirano' : 'Kopiraj poruku'}
+                </button>
+              </div>
+              <pre className="preview-body">{message}</pre>
+            </div>
+          )}
+
+          {sent && contact && (
+            <details className="alt">
+              <summary>Aplikacija se ne otvara? Ostale mogućnosti</summary>
+              <a className="sheet-option" href={viberForwardLink(message)} onClick={() => watchAppLaunch(() => setFailedApp('Viber'))}>
+                <Icon name="viber" />
+                <span><b>Viber s već upisanom porukom</b><small>U Viberu sami odaberite osobu: {contact.name}</small></span>
+              </a>
+              <a className="sheet-option" href={smsLink(contact.phone, message)}>
+                <Icon name="sms" />
+                <span><b>Pošalji SMS – {contact.name}</b><small>{contact.display}</small></span>
+              </a>
+            </details>
+          )}
+        </div>
       </div>
-
-      <Sheet open={open} title="Pošaljite potvrdu" onClose={() => setOpen(false)}>
-        <p className="sheet-text">Odaberite kome i preko koje aplikacije šaljete potvrdu. Otvorit će se razgovor s tom osobom.</p>
-
-        <div className={`send-grid ${isIOS ? 'wa-first' : ''}`}>
-          {CONTACTS.map((c) => (
-            <a key={`v-${c.id}`} className={`btn btn-viber ${sentTo?.id === c.id && sentVia === 'Viber' ? 'is-active' : ''}`} href={viberChatLink(c.phone)} onClick={() => openApp(c, 'Viber')}>
-              <Icon name="viber" size={22} /> Pošalji {c.dative} na Viber
-            </a>
-          ))}
-          {CONTACTS.map((c) => (
-            <a key={`w-${c.id}`} className={`btn btn-whatsapp ${sentTo?.id === c.id && sentVia === 'WhatsApp' ? 'is-active' : ''}`} href={whatsappLink(c.phone, message)} target={waTarget} rel="noopener noreferrer" onClick={() => openApp(c, 'WhatsApp')}>
-              <Icon name="whatsapp" size={22} /> Pošalji {c.dative} na WhatsApp
-            </a>
-          ))}
-        </div>
-
-        {failedApp && <AppHint app={failedApp} />}
-
-        {recipient && sentVia === 'Viber' && (
-          <div className="howto" role="status">
-            <p className="howto-title"><Icon name="check" size={18} /> Otvara se Viber – {recipient.name}, {recipient.display}</p>
-            <ol>
-              <li>Poruka je kopirana: dugo pritisnite polje za poruku i odaberite <b>Zalijepi</b>.</li>
-              <li>Pritisnite <b>Pošalji</b>. Potvrda je poslana tek kada je pošaljete u Viberu.</li>
-            </ol>
-          </div>
-        )}
-        {recipient && sentVia === 'WhatsApp' && (
-          <div className="howto howto-wa" role="status">
-            <p className="howto-title"><Icon name="check" size={18} /> Otvara se WhatsApp – {recipient.name}, {recipient.display}</p>
-            <ol>
-              <li>Poruka je već upisana.</li>
-              <li>Pritisnite <b>Pošalji</b>. Potvrda je poslana tek kada je pošaljete u WhatsAppu.</li>
-            </ol>
-          </div>
-        )}
-        {!recipient && <p className="sheet-note">Potvrda je poslana tek kada poruku pošaljete u aplikaciji.</p>}
-
-        <div className="preview">
-          <div className="preview-head">
-            <span>Vaša poruka</span>
-            <button type="button" className="btn btn-ghost btn-sm" onClick={copy}>
-              <Icon name={copied ? 'check' : 'copy'} size={16} /> {copied ? 'Kopirano' : 'Kopiraj poruku'}
-            </button>
-          </div>
-          <pre className="preview-body">{message}</pre>
-        </div>
-
-        <details className="alt">
-          <summary>Aplikacija se ne otvara? Ostale mogućnosti</summary>
-          <a className="sheet-option" href={viberForwardLink(message)} onClick={() => watchAppLaunch(() => setFailedApp('Viber'))}>
-            <Icon name="viber" />
-            <span><b>Viber s već upisanom porukom</b><small>Poruka je upisana – u Viberu sami odaberite Edvina ili Šejlu</small></span>
-          </a>
-          {CONTACTS.map((c) => (
-            <a key={c.id} className="sheet-option" href={smsLink(c.phone, message)}>
-              <Icon name="sms" />
-              <span><b>Pošalji SMS – {c.name}</b><small>{c.display}</small></span>
-            </a>
-          ))}
-        </details>
-      </Sheet>
     </Section>
   )
 }

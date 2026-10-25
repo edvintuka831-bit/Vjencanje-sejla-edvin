@@ -31,6 +31,27 @@ function Bloom({ x, y, s = 1 }) {
   )
 }
 
+// Bijela ruža: slojevi latica oko spiralnog srca.
+function Rose({ x, y, s = 1 }) {
+  const outer = [0, 72, 144, 216, 288]
+  const mid = [36, 108, 180, 252, 324]
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      {outer.map((a) => (
+        <path key={`o${a}`} d="M0 0 C -14 -6, -16 -22, 0 -24 C 16 -22, 14 -6, 0 0 Z" transform={`rotate(${a})`}
+          fill="url(#roseOuter)" stroke="url(#goldStroke)" strokeWidth="0.8" />
+      ))}
+      {mid.map((a) => (
+        <path key={`m${a}`} d="M0 0 C -10 -4, -11 -15, 0 -16 C 11 -15, 10 -4, 0 0 Z" transform={`rotate(${a})`}
+          fill="url(#roseInner)" stroke="url(#goldStroke)" strokeWidth="0.7" />
+      ))}
+      <circle r="8.5" fill="url(#roseInner)" stroke="url(#goldStroke)" strokeWidth="0.7" />
+      <path d="M-1 1 C -5 -1, -4 -6, 1 -6 C 6 -6, 7 0, 3 3 C -1 6, -8 4, -8 -1 C -8 -7, -2 -10, 4 -9"
+        fill="none" stroke="url(#goldStroke)" strokeWidth="0.9" strokeLinecap="round" />
+    </g>
+  )
+}
+
 function Bud({ x, y, r }) {
   return (
     <g transform={`translate(${x} ${y}) rotate(${r})`}>
@@ -64,6 +85,15 @@ export function OrnamentDefs() {
           <stop offset="0" stopColor="#efd3c3" />
           <stop offset="1" stopColor="#f9ece2" />
         </radialGradient>
+        <radialGradient id="roseOuter" cx="0.5" cy="0.95" r="1">
+          <stop offset="0" stopColor="#f3e8dc" />
+          <stop offset="0.55" stopColor="#fffdf9" />
+          <stop offset="1" stopColor="#ffffff" />
+        </radialGradient>
+        <radialGradient id="roseInner" cx="0.5" cy="0.9" r="0.9">
+          <stop offset="0" stopColor="#ecdccb" />
+          <stop offset="1" stopColor="#fffaf4" />
+        </radialGradient>
         <linearGradient id="leafFill" x1="0" y1="0" x2="1" y2="0">
           <stop offset="0" stopColor="#e9dcc0" stopOpacity="0.9" />
           <stop offset="1" stopColor="#f6efe0" stopOpacity="0.6" />
@@ -93,8 +123,8 @@ export function FloralCorner({ className = '' }) {
       <Bud x={18} y={88} r={-10} />
       <Bud x={60} y={32} r={8} />
       <Bud x={190} y={18} r={70} />
-      <Bloom x={92} y={98} s={1.15} />
-      <Bloom x={40} y={150} s={0.7} />
+      <Rose x={92} y={98} s={1.25} />
+      <Rose x={40} y={150} s={0.75} />
       <Bloom x={146} y={56} s={0.62} />
       {[[110, 130], [126, 116], [80, 150], [170, 80], [50, 190], [196, 50]].map(([cx, cy]) => (
         <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="1.6" fill="#c9a55e" opacity="0.8" />

@@ -1,31 +1,55 @@
 # Šejla & Edvin – digitalna pozivnica za vjenčanje
 
-Luksuzna digitalna pozivnica (React + Vite, čisti CSS). Bez Supabasea, bez baze, bez backenda.
+Luksuzna bijelo-zlatna digitalna pozivnica (React + Vite, čisti CSS).
+Bez Supabasea, bez baze, bez servera, bez prijave.
 
-## Funkcije
+## Šta pozivnica sadrži
 
-- Zatvorena 3D koverta sa zlatnim voštanim pečatom **Š & E** – dodir na pečat otvara kovertu, pozivnica izlazi, prikazuje se romantični uvod, a zatim cijela pozivnica.
-- Muzika (Zdravko Čolić – Jedina) kreće nakon otvaranja koverte, ponavlja se, ima dugme za uključivanje/isključivanje.
-- Odbrojavanje do 23.01.2027. u 15:00 (Europe/Sarajevo), ažurira se svake sekunde.
-- Raspored dana s ikonama i animacijama.
-- Potvrda dolaska putem Vibera (Edvin / Šejla), kopiranje poruke, SMS kao rezervna opcija.
-- Dodaj u kalendar (Google Kalendar i .ics za iPhone/Outlook), Podijeli pozivnicu.
-- Zlatne čestice, cvjetni ukrasi, animirana srca, potpuno responzivno.
-
-## Muzika
-
-Pjesma **Zdravko Čolić – Jedina** je ugrađena: `public/audio/jedina.mp3` (128 kbps, 3:25).
-Kreće kada gost dodirne pečat, ponavlja se, a dugme dolje desno je uključuje/isključuje.
-
-Za zamjenu pjesme stavite novi fajl pod istim nazivom (`jedina.mp3` ili `jedina.m4a`) u `public/audio/`
-i ponovo pokrenite `npm run build`. Ako fajla nema, dugme za muziku se ne prikazuje.
+- **Zapečaćena koverta** sa zlatnim voštanim pečatom **Š & E**. Dodir na pečat: pečat puca,
+  koverta se rasklapa, pozivnica izlazi, lete latice bijelih ruža i zlatne iskre, zatim se otvara pozivnica.
+- **Glavni ekran:** Šejla & Edvin, 23. januar 2027., odbrojavanje i uvodni tekst.
+- **Odbrojavanje** do 23.01.2027. u 18:00 (Europe/Sarajevo) – računa se iz stvarnog vremena,
+  pa radi i nakon osvježavanja stranice.
+- **Program vjenčanja** sa zlatnim ikonama i dugmadima **Otvori navigaciju** (Google Maps).
+- **Muzika** – Zdravko Čolić „Jedina“ (`public/audio/jedina.mp3`).
+- **Potvrda dolaska** putem Vibera ili WhatsAppa, s izborom kome se šalje (Edvin / Šejla).
+- Dodaj u kalendar, Podijeli pozivnicu, završni dio s animiranim srcima i laticama.
 
 ## Izmjena podataka
 
-Svi tekstovi i podaci su u `src/config.js`:
+Svi tekstovi i podaci su u `src/config.js`: datum, brojevi telefona, program, muzika.
 
-- datum, brojevi telefona, raspored,
-- `mapsQuery` – upišite tačnu adresu (npr. `"Branilaca 10, Grad"`) ili Google Maps link i automatski se pojavi dugme **Otvori mapu**. Trenutno nijedna lokacija nema naveden grad, pa su dugmad za mapu isključena.
+**Lokacije (`mapsQuery`)** – Google Maps traži po nazivu i adresi, bez koordinata:
+
+| Događaj | Trenutna pretraga | Napomena |
+|---|---|---|
+| Okupljanje kod mladoženje | `Slijevnice, Kakanj` | |
+| Okupljanje kod mlade | `Branilaca 10` | grad nije naveden – dopišite ga (npr. `Branilaca 10, Kakanj`) |
+| Vjenčanje | – | lokacija ceremonije nije navedena, dugme se ne prikazuje dok je ne upišete |
+| Večera i slavlje | `Restoran ADS` | grad nije naveden – preporučeno dopisati |
+
+## Muzika
+
+- Fajl: `public/audio/jedina.mp3` (podržan je i `jedina.m4a`).
+- Pokreće se kada gost dodirne pečat. Dugme dolje desno je uključuje/isključuje, pjesma se ponavlja.
+- Ako preglednik blokira reprodukciju, pojavi se dugme **Pusti našu pjesmu**.
+- Ako fajl ne postoji, pojavi se dugme koje otvara pjesmu na Spotifyju (`MUSIC.fallbackUrl`).
+
+## Potvrda dolaska – Viber i WhatsApp
+
+Gost upiše ime i prezime, dolazak, broj osoba, poruku i izabere **Edvin** ili **Šejla**, pa klikne:
+
+- **Potvrdi putem WhatsAppa** – otvara se WhatsApp razgovor s izabranom osobom (`wa.me` link)
+  i poruka je već upisana. Gost pritisne Pošalji.
+- **Potvrdi putem Vibera** – otvara se Viber razgovor s izabranom osobom. Viber za ovaj način
+  otvaranja ne podržava unaprijed upisanu poruku, zato se poruka automatski kopira i gost dobije
+  uputstvo da je zalijepi i pošalje. Na Androidu se koristi intent link (testirano: radi).
+
+Rezervne opcije: Kopiraj poruku, Viber s već upisanom porukom (gost bira primaoca) i SMS.
+Pozivnica nigdje ne tvrdi da je potvrda poslana – slanje gost završava u aplikaciji.
+
+`/viber-test.html` je skrivena probna stranica za provjeru Viber linkova na telefonima (nije povezana
+s pozivnicom). Može se obrisati iz `public/` kada više ne treba.
 
 ## Lokalno pokretanje
 
@@ -40,31 +64,18 @@ npm run preview   # pregled builda
 
 ## Postavljanje na Netlify
 
-### Opcija A – povezivanje s GitHubom (preporučeno)
+### Opcija A – ručno, bez programiranja (najbrže)
 
-1. Na <https://app.netlify.com> kliknite **Add new site → Import an existing project → GitHub**.
-2. Odaberite ovaj repository.
-3. Postavke se čitaju iz `netlify.toml` automatski:
-   - Build command: `npm run build`
-   - Publish directory: `dist`
-4. Kliknite **Deploy**. Svaka nova izmjena na GitHubu automatski se objavljuje.
+1. Raspakujte **`pozivnica-dist.zip`**.
+2. Otvorite <https://app.netlify.com/drop>.
+3. Prevucite raspakovani folder (onaj u kojem je `index.html`).
+4. Za ažuriranje postojeće stranice: Netlify → vaša stranica → **Deploys** → prevucite novi folder.
 
-### Opcija B – ručno (drag & drop)
+### Opcija B – iz izvornog koda / GitHuba
 
-1. Raspakujte `pozivnica-dist.zip` (ili sami pokrenite `npm install` i `npm run build`).
-2. Na <https://app.netlify.com/drop> prevucite **sadržaj foldera `dist`** (folder u kojem je `index.html`).
-3. Ne prevlačite izvorni kod (`src`, `package.json`...) – za ručno postavljanje treba samo `dist`.
+1. Netlify → **Add new site → Import an existing project → GitHub** → izaberite ovaj repository.
+2. Postavke se čitaju iz `netlify.toml` (build: `npm run build`, publish: `dist`).
+3. **Deploy**.
 
-### Naziv stranice
-
-U Netlify postavkama (**Site configuration → Change site name**) možete postaviti npr. `sejla-i-edvin.netlify.app`.
-
-## Viber i WhatsApp – kako radi potvrda
-
-Nakon klika na **POTVRDI DOLAZAK** gost bira jedno od četiri dugmeta:
-
-- **Pošalji Edvinu / Šejli na WhatsApp** – otvara se WhatsApp razgovor s tom osobom i poruka je već upisana; gost samo pritisne Pošalji.
-- **Pošalji Edvinu / Šejli na Viber** – otvara se Viber razgovor s tom osobom; poruka je kopirana i gost je samo zalijepi.
-
-Rezervne opcije: **Kopiraj poruku**, Viber s već upisanom porukom (gost sam bira primaoca) i **SMS**.
-Pozivnica nigdje ne tvrdi da je potvrda poslana – slanje završava gost u aplikaciji.
+Izvorni kod (`pozivnica-izvorni-kod.zip`) se ne prevlači direktno na Netlify Drop –
+prvo `npm install` i `npm run build`, pa se postavlja sadržaj foldera `dist`.

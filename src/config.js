@@ -6,22 +6,24 @@ export const COUPLE = {
   initials: 'Š & E',
 }
 
-// 23.01.2027. u 15:00 po vremenu Europe/Sarajevo.
+// Odbrojavanje: 23.01.2027. u 18:00 po vremenu Europe/Sarajevo.
 // U januaru Sarajevo koristi CET (UTC+01:00), pa je ovo tačan trenutak.
-export const WEDDING_DATE = new Date('2027-01-23T15:00:00+01:00')
+export const WEDDING_DATE = new Date('2027-01-23T18:00:00+01:00')
 
 export const DATE_TEXT = {
-  long: 'SUBOTA, 23. JANUAR 2027.',
+  long: '23. JANUAR 2027.',
   short: '23.01.2027.',
   rsvpDeadline: '02.01.2027.',
 }
 
-// Muzika: stavite fajl u public/audio/jedina.mp3 (ili jedina.m4a).
-// Dugme za muziku pojavljuje se samo ako se fajl stvarno može reproducirati.
+// Muzika: fajl public/audio/jedina.mp3 (ili jedina.m4a).
+// Ako fajl ne postoji, prikazuje se dugme koje otvara pjesmu na muzičkom servisu (fallbackUrl).
 export const MUSIC = {
   sources: ['/audio/jedina.mp3', '/audio/jedina.m4a'],
   title: 'Zdravko Čolić – Jedina',
   volume: 0.35,
+  fallbackUrl: 'https://open.spotify.com/search/Zdravko%20%C4%8Coli%C4%87%20Jedina',
+  fallbackLabel: 'Poslušajte našu pjesmu na Spotifyju',
 }
 
 export const CONTACTS = [
@@ -29,29 +31,31 @@ export const CONTACTS = [
   { id: 'sejla', name: 'Šejla', dative: 'Šejli', phone: '+387603292251', display: '+387 60 329 2251' },
 ]
 
-// mapsQuery: upišite tačnu adresu (ulica, broj, grad) ili Google Maps link.
-// Dugme "Otvori mapu" prikazuje se samo kada je polje popunjeno.
-// Trenutne lokacije nemaju naveden grad, pa dugmad za mapu nisu uključena.
+// mapsQuery: naziv i adresa za Google Maps pretragu (bez koordinata).
+// Prazno polje = nema dugmeta "Otvori navigaciju".
+// Napomena: za "Branilaca 10" i "Restoran ADS" grad nije naveden –
+// dopišite ga ovdje (npr. 'Branilaca 10, Kakanj') da navigacija bude tačna.
 export const EVENTS = [
   {
     time: '11:00',
     title: 'Okupljanje kod mladoženje',
-    place: 'Slijevnice',
+    place: 'Slijevnice, Kakanj',
     icon: 'groom',
-    mapsQuery: '',
+    mapsQuery: 'Slijevnice, Kakanj',
   },
   {
     time: '11:00',
     title: 'Okupljanje kod mlade',
     place: 'Branilaca 10',
     icon: 'bride',
-    mapsQuery: '',
+    mapsQuery: 'Branilaca 10',
   },
   {
     time: '15:00',
     title: 'Vjenčanje',
-    place: 'Svečani čin vjenčanja',
+    place: 'Svečana ceremonija',
     icon: 'rings',
+    // Lokacija ceremonije nije navedena – upišite je kada bude poznata.
     mapsQuery: '',
   },
   {
@@ -59,13 +63,13 @@ export const EVENTS = [
     title: 'Večera i slavlje',
     place: 'Restoran ADS',
     icon: 'cheers',
-    mapsQuery: '',
+    mapsQuery: 'Restoran ADS',
   },
 ]
 
 export const CALENDAR = {
   title: 'Vjenčanje Šejla & Edvin',
-  details: 'S velikom radošću pozivamo Vas da budete dio našeg najljepšeg dana. Vjenčanje u 15:00, večera i slavlje u 18:00 – Restoran ADS.',
+  details: 'Vjenčanje u 15:00, večera i slavlje u 18:00 – Restoran ADS.',
   location: 'Restoran ADS',
   // UTC: 15:00 CET = 14:00Z, kraj u ponoć = 23:00Z
   start: '20270123T140000Z',
@@ -75,5 +79,5 @@ export const CALENDAR = {
 
 export const SHARE = {
   title: 'Šejla & Edvin – Pozivnica za vjenčanje',
-  text: 'S radošću Vas pozivamo na vjenčanje Šejle i Edvina, subota, 23.01.2027.',
+  text: 'S radošću Vas pozivamo na vjenčanje Šejle i Edvina, 23.01.2027.',
 }

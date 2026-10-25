@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { COUPLE } from '../config.js'
 import { FloralCorner, Monogram, WaxSeal } from './Ornaments.jsx'
+import { PetalBurst } from './Petals.jsx'
 
 // Faze: closed → seal (pečat puca) → flap (koverta se otvara)
-//       → letter (pozivnica izlazi) → intro (romantični tekst) → kraj
+//       → letter (pozivnica izlazi, latice i iskre) → intro (prijelaz) → kraj
 const reduced = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-const TIMINGS = { seal: 750, flap: 1000, letter: 1500, intro: 3400 }
+const TIMINGS = { seal: 750, flap: 1000, letter: 1900, intro: 1300 }
 
 export default function Envelope({ onStart, onDone }) {
   const [stage, setStage] = useState('closed')
@@ -34,8 +35,9 @@ export default function Envelope({ onStart, onDone }) {
       <FloralCorner className="corner br" />
 
       <div className="env-heading">
-        <p className="env-kicker">Pozivnica za vjenčanje</p>
-        <p className="env-names">{COUPLE.bride} <span>&amp;</span> {COUPLE.groom}</p>
+        <p className="env-motto">
+          <span>Jedna ljubav.</span> <span>Jedno obećanje.</span> <span>Jedna vječnost.</span>
+        </p>
       </div>
 
       <div className="env-scene">
@@ -44,7 +46,8 @@ export default function Envelope({ onStart, onDone }) {
           <div className="env-letter">
             <div className="letter-inner">
               <Monogram className="letter-mono" />
-              <p className="letter-line">Jedna ljubav. Dva srca. Jedno zauvijek.</p>
+              <p className="letter-names">{COUPLE.bride} &amp; {COUPLE.groom}</p>
+              <p className="letter-line">23. januar 2027.</p>
             </div>
           </div>
           <svg className="env-pocket" viewBox="0 0 400 264" preserveAspectRatio="none" aria-hidden="true">
@@ -84,16 +87,8 @@ export default function Envelope({ onStart, onDone }) {
 
       <p className="env-hint">Dodirnite pečat i otvorite našu pozivnicu.</p>
 
-      <div className="env-intro" aria-live="polite">
-        {(stage === 'intro') && (
-          <>
-            <Monogram className="intro-mono" />
-            <p className="intro-line">Jedna ljubav.</p>
-            <p className="intro-line">Dva srca.</p>
-            <p className="intro-line">Jedno zauvijek.</p>
-          </>
-        )}
-      </div>
+      {(stage === 'letter' || stage === 'intro') && <PetalBurst />}
+      <div className="env-intro" />
     </div>
   )
 }

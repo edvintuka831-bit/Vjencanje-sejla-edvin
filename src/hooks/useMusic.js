@@ -2,14 +2,17 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { MUSIC } from '../config.js'
 
 // Muzika se pokreće tek na klik gosta (zahtjev svih mobilnih preglednika).
-// "available" postaje true tek kada pjesma stvarno krene – ako fajl ne postoji,
-// dugme za muziku se uopće ne prikazuje.
+// available – fajl postoji i može se reproducirati
+// blocked   – preglednik je odbio pokretanje; prikazuje se "Pusti našu pjesmu"
+// missing   – fajl ne postoji; prikazuje se link na muzički servis
 export function useMusic() {
   const audioRef = useRef(null)
   const fadeRef = useRef(0)
   const resumeRef = useRef(false)
   const [available, setAvailable] = useState(false)
   const [playing, setPlaying] = useState(false)
+  const [blocked, setBlocked] = useState(false)
+  const [missing, setMissing] = useState(false)
 
   useEffect(() => {
     const audio = new Audio()
@@ -26,21 +29,30 @@ export function useMusic() {
           const res = await fetch(src, { method: 'HEAD' })
           const type = res.headers.get('content-type') || ''
           if (res.ok && !type.includes('text/html')) {
-            if (!cancelled) audio.src = src
+            if (!cancelled && !audio.src) audio.src = src
             return
           }
         } catch {
           // probaj sljedeći
         }
       }
+      if (!cancelled && audio.paused) setMissing(true)
     })()
 
-    const onReady = () => setAvailable(true)
-    const onPlay = () => setPlaying(true)
+    const onReady = () => {
+      setAvailable(true)
+      setMissing(false)
+    }
+    const onPlay = () => {
+      setPlaying(true)
+      setBlocked(false)
+    }
     const onPause = () => setPlaying(false)
     const onError = () => {
       setAvailable(false)
       setPlaying(false)
+      setBlocked(false)
+      setMissing(true)
     }
     audio.addEventListener('canplay', onReady)
     audio.addEventListener('playing', onPlay)
@@ -84,13 +96,18 @@ export function useMusic() {
   // Mora se pozvati direktno iz klika.
   const play = useCallback(() => {
     const audio = audioRef.current
-    if (!audio || !audio.src) return
+    if (!audio) return
+    // Ako provjera fajla još traje, kreni s prvim izvorom.
+    if (!audio.src) audio.src = MUSIC.sources[0]
     const p = audio.play()
     fadeIn(audio)
     if (p && p.then) {
-      p.then(() => setAvailable(true)).catch(() => {
-        // Fajl ne postoji ili ga preglednik ne može reproducirati.
-        if (audio.error) setAvailable(false)
+      p.then(() => {
+        setAvailable(true)
+        setBlocked(false)
+      }).catch((err) => {
+        // NotAllowedError = preglednik traži još jedan dodir gosta.
+        if (err && err.name === 'NotAllowedError') setBlocked(true)
       })
     }
   }, [])
@@ -102,5 +119,5 @@ export function useMusic() {
     else audio.pause()
   }, [play])
 
-  return { available, playing, play, toggle }
+  return { available, playing, blocked, missing, play, toggle }
 }

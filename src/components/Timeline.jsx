@@ -1,15 +1,15 @@
-import { EVENTS } from '../config.js'
+import { DATE_TEXT, EVENTS } from '../config.js'
 import Icon from './Icons.jsx'
 import Section from './Section.jsx'
 
-const mapsUrl = (q) =>
-  /^https?:\/\//.test(q) ? q : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`
+// Google Maps navigacija do mjesta – pretraga po nazivu i adresi, bez koordinata.
+const navUrl = (q) => `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(q)}`
 
 export default function Timeline() {
   return (
-    <Section id="raspored" className="timeline-section">
-      <p className="eyebrow">Subota, 23. januar 2027.</p>
-      <h2 className="section-title">Raspored našeg dana</h2>
+    <Section id="program" className="timeline-section">
+      <p className="eyebrow">{DATE_TEXT.short}</p>
+      <h2 className="section-title">Program vjenčanja</h2>
       <ol className="timeline">
         {EVENTS.map((ev, i) => (
           <li className="tl-item" key={i} style={{ '--i': i }}>
@@ -19,8 +19,8 @@ export default function Timeline() {
               <h3 className="tl-title">{ev.title}</h3>
               <p className="tl-place">{ev.place}</p>
               {ev.mapsQuery && (
-                <a className="btn btn-ghost btn-sm" href={mapsUrl(ev.mapsQuery)} target="_blank" rel="noopener noreferrer">
-                  <Icon name="pin" size={18} /> Otvori mapu
+                <a className="btn btn-ghost btn-sm" href={navUrl(ev.mapsQuery)} target="_blank" rel="noopener noreferrer">
+                  <Icon name="pin" size={18} /> Otvori navigaciju
                 </a>
               )}
             </article>

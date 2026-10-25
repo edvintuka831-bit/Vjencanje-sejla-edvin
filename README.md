@@ -59,13 +59,12 @@ npm run preview   # pregled builda
 
 U Netlify postavkama (**Site configuration → Change site name**) možete postaviti npr. `sejla-i-edvin.netlify.app`.
 
-## Viber – kako radi potvrda
+## Viber i WhatsApp – kako radi potvrda
 
-Viber ne dozvoljava da link istovremeno odabere primaoca **i** upiše poruku. Zato:
+Nakon klika na **POTVRDI DOLAZAK** gost bira jedno od četiri dugmeta:
 
-1. Gost popuni formu i klikne **POTVRDI DOLAZAK**.
-2. Klikne **Pošalji Edvinu na Viber** ili **Pošalji Šejli na Viber** – poruka se automatski kopira i otvara se Viber razgovor s tim brojem.
-3. Gost zalijepi poruku i pošalje je.
+- **Pošalji Edvinu / Šejli na WhatsApp** – otvara se WhatsApp razgovor s tom osobom i poruka je već upisana; gost samo pritisne Pošalji.
+- **Pošalji Edvinu / Šejli na Viber** – otvara se Viber razgovor s tom osobom. Novije verzije Vibera same upišu poruku; ako ne, poruka je već kopirana i gost je samo zalijepi.
 
-Rezervne opcije: dugme **Kopiraj poruku**, Viber s već upisanom porukom (gost sam bira primaoca) i **SMS**.
-Pozivnica nigdje ne tvrdi da je potvrda poslana – slanje završava gost u Viberu.
+Rezervne opcije: **Kopiraj poruku**, Viber s već upisanom porukom (gost sam bira primaoca) i **SMS**.
+Pozivnica nigdje ne tvrdi da je potvrda poslana – slanje završava gost u aplikaciji.

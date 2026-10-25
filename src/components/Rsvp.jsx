@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react'
 import { CONTACTS, DATE_TEXT } from '../config.js'
 import { copyText } from '../utils/clipboard.js'
-import { watchAppLaunch } from '../utils/appLaunch.js'
+import { isInAppBrowser, watchAppLaunch } from '../utils/appLaunch.js'
 import AppHint from './AppHint.jsx'
-import { buildRsvpMessage, smsLink, viberChatLink, viberForwardLink } from '../utils/rsvp.js'
+import { buildRsvpMessage, smsLink, viberChatLink, viberForwardLink, whatsappLink } from '../utils/rsvp.js'
 import Icon from './Icons.jsx'
 import { Divider } from './Ornaments.jsx'
 import Section from './Section.jsx'
@@ -20,7 +20,8 @@ export default function Rsvp({ notify }) {
   const [open, setOpen] = useState(false)
   const [sentTo, setSentTo] = useState(null)
   const [copied, setCopied] = useState(false)
-  const [viberFailed, setViberFailed] = useState(false)
+  const [sentVia, setSentVia] = useState(null)
+  const [failedApp, setFailedApp] = useState(null)
 
   const message = useMemo(
     () => buildRsvpMessage({ name, attending: attending === true, guests, note }),
@@ -35,8 +36,9 @@ export default function Rsvp({ notify }) {
     setErrors(next)
     if (Object.keys(next).length) return
     setSentTo(null)
+    setSentVia(null)
     setCopied(false)
-    setViberFailed(false)
+    setFailedApp(null)
     setOpen(true)
   }
 
@@ -47,13 +49,15 @@ export default function Rsvp({ notify }) {
     return ok
   }
 
-  // Link se otvara normalno (pravi <a>), a poruka se istovremeno kopira.
-  const openViber = (contact) => {
-    copy()
+  // Link se otvara normalno (pravi <a>); poruka se uz to kopira kao rezerva.
+  const openApp = (contact, app) => {
+    if (app === 'Viber') copy()
     setSentTo(contact)
-    setViberFailed(false)
-    watchAppLaunch(() => setViberFailed(true))
+    setSentVia(app)
+    setFailedApp(null)
+    watchAppLaunch(() => setFailedApp(app))
   }
+  const waTarget = isInAppBrowser() ? undefined : '_blank'
 
   const recipient = sentTo && CONTACTS.find((c) => c.id === sentTo.id)
 
@@ -120,30 +124,42 @@ export default function Rsvp({ notify }) {
       </div>
 
       <Sheet open={open} title="Pošaljite potvrdu" onClose={() => setOpen(false)}>
-        <p className="sheet-text">Odaberite kome šaljete potvrdu. Poruka će se kopirati i otvorit će se Viber razgovor.</p>
+        <p className="sheet-text">Odaberite kome i preko koje aplikacije šaljete potvrdu. Otvorit će se razgovor s tom osobom.</p>
 
         <div className="send-grid">
           {CONTACTS.map((c) => (
-            <a key={c.id} className={`btn btn-viber ${sentTo?.id === c.id ? 'is-active' : ''}`} href={viberChatLink(c.phone)} onClick={() => openViber(c)}>
+            <a key={`v-${c.id}`} className={`btn btn-viber ${sentTo?.id === c.id && sentVia === 'Viber' ? 'is-active' : ''}`} href={viberChatLink(c.phone, message)} onClick={() => openApp(c, 'Viber')}>
               <Icon name="viber" size={22} /> Pošalji {c.dative} na Viber
+            </a>
+          ))}
+          {CONTACTS.map((c) => (
+            <a key={`w-${c.id}`} className={`btn btn-whatsapp ${sentTo?.id === c.id && sentVia === 'WhatsApp' ? 'is-active' : ''}`} href={whatsappLink(c.phone, message)} target={waTarget} rel="noopener noreferrer" onClick={() => openApp(c, 'WhatsApp')}>
+              <Icon name="whatsapp" size={22} /> Pošalji {c.dative} na WhatsApp
             </a>
           ))}
         </div>
 
-        {viberFailed && <AppHint app="Viber" />}
+        {failedApp && <AppHint app={failedApp} />}
 
-        {recipient ? (
+        {recipient && sentVia === 'Viber' && (
           <div className="howto" role="status">
-            <p className="howto-title"><Icon name="check" size={18} /> Poruka je kopirana</p>
+            <p className="howto-title"><Icon name="check" size={18} /> Otvara se Viber – {recipient.name}, {recipient.display}</p>
             <ol>
-              <li>U Viberu se otvara razgovor – {recipient.name}, {recipient.display}.</li>
-              <li>Dugo pritisnite polje za poruku i odaberite <b>Zalijepi</b>.</li>
+              <li>Ako poruka nije već upisana: dugo pritisnite polje za poruku i odaberite <b>Zalijepi</b> (poruka je kopirana).</li>
               <li>Pritisnite <b>Pošalji</b>. Potvrda je poslana tek kada je pošaljete u Viberu.</li>
             </ol>
           </div>
-        ) : (
-          <p className="sheet-note">Potvrda je poslana tek kada poruku pošaljete u Viberu.</p>
         )}
+        {recipient && sentVia === 'WhatsApp' && (
+          <div className="howto howto-wa" role="status">
+            <p className="howto-title"><Icon name="check" size={18} /> Otvara se WhatsApp – {recipient.name}, {recipient.display}</p>
+            <ol>
+              <li>Poruka je već upisana.</li>
+              <li>Pritisnite <b>Pošalji</b>. Potvrda je poslana tek kada je pošaljete u WhatsAppu.</li>
+            </ol>
+          </div>
+        )}
+        {!recipient && <p className="sheet-note">Potvrda je poslana tek kada poruku pošaljete u aplikaciji.</p>}
 
         <div className="preview">
           <div className="preview-head">
@@ -156,8 +172,8 @@ export default function Rsvp({ notify }) {
         </div>
 
         <details className="alt">
-          <summary>Viber se ne otvara? Ostale mogućnosti</summary>
-          <a className="sheet-option" href={viberForwardLink(message)} onClick={() => watchAppLaunch(() => setViberFailed(true))}>
+          <summary>Aplikacija se ne otvara? Ostale mogućnosti</summary>
+          <a className="sheet-option" href={viberForwardLink(message)} onClick={() => watchAppLaunch(() => setFailedApp('Viber'))}>
             <Icon name="viber" />
             <span><b>Viber s već upisanom porukom</b><small>Poruka je upisana – u Viberu sami odaberite Edvina ili Šejlu</small></span>
           </a>

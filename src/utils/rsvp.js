@@ -21,8 +21,13 @@ export function buildRsvpMessage({ name, attending, guests, note }) {
 
 const digits = (phone) => phone.replace(/[^\d]/g, '')
 
-// Otvara Viber razgovor s brojem (poruku gost zalijepi sam).
-export const viberChatLink = (phone) => `viber://chat?number=%2B${digits(phone)}`
+// Otvara Viber razgovor s brojem. Parametar "draft" novije verzije Vibera
+// upisuju u polje za poruku; starije ga ignorišu, pa se poruka i kopira.
+export const viberChatLink = (phone, text) =>
+  `viber://chat?number=%2B${digits(phone)}&draft=${encodeURIComponent(text)}`
+
+// WhatsApp podržava i primaoca i već upisanu poruku.
+export const whatsappLink = (phone, text) => `https://wa.me/${digits(phone)}?text=${encodeURIComponent(text)}`
 
 // Otvara Viber s već upisanom porukom – gost bira primaoca.
 export const viberForwardLink = (text) => `viber://forward?text=${encodeURIComponent(text)}`

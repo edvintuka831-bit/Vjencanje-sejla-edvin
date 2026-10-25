@@ -1595,3 +1595,7 @@ body.no-scroll .music-btn {
   opacity: 0;
   pointer-events: none;
 }
+
+.send-grid.wa-first .btn-whatsapp {
+  order: -1;
+}

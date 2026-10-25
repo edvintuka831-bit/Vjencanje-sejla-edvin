@@ -58,6 +58,9 @@ export default function Rsvp({ notify }) {
     watchAppLaunch(() => setFailedApp(app))
   }
   const waTarget = isInAppBrowser() ? undefined : '_blank'
+  // Na iPhoneu WhatsApp pouzdano otvara razgovor, pa ide prvi; na Androidu Viber.
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
 
   const recipient = sentTo && CONTACTS.find((c) => c.id === sentTo.id)
 
@@ -126,7 +129,7 @@ export default function Rsvp({ notify }) {
       <Sheet open={open} title="Pošaljite potvrdu" onClose={() => setOpen(false)}>
         <p className="sheet-text">Odaberite kome i preko koje aplikacije šaljete potvrdu. Otvorit će se razgovor s tom osobom.</p>
 
-        <div className="send-grid">
+        <div className={`send-grid ${isIOS ? 'wa-first' : ''}`}>
           {CONTACTS.map((c) => (
             <a key={`v-${c.id}`} className={`btn btn-viber ${sentTo?.id === c.id && sentVia === 'Viber' ? 'is-active' : ''}`} href={viberChatLink(c.phone)} onClick={() => openApp(c, 'Viber')}>
               <Icon name="viber" size={22} /> Pošalji {c.dative} na Viber

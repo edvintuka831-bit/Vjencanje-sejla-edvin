@@ -20,7 +20,7 @@ Audio fajl **nije uključen** u projekat. Stavite svoj fajl ovdje:
 public/audio/jedina.mp3
 ```
 
-(tačno ovaj naziv, mala slova). Nakon toga ponovo pokrenite `npm run build`.
+(tačno ovaj naziv, mala slova). Podržan je i `public/audio/jedina.m4a` (format iTunes kupovina). Nakon toga ponovo pokrenite `npm run build`.
 Ako fajl ne postoji, dugme za muziku se ne prikazuje i pozivnica radi normalno bez muzike.
 
 Ako postavljate gotov `dist` folder ručno, fajl stavite u `dist/audio/jedina.mp3`.

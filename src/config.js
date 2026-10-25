@@ -16,10 +16,10 @@ export const DATE_TEXT = {
   rsvpDeadline: '02.01.2027.',
 }
 
-// Muzika: stavite fajl u public/audio/jedina.mp3.
+// Muzika: stavite fajl u public/audio/jedina.mp3 (ili jedina.m4a).
 // Dugme za muziku pojavljuje se samo ako se fajl stvarno može reproducirati.
 export const MUSIC = {
-  src: '/audio/jedina.mp3',
+  sources: ['/audio/jedina.mp3', '/audio/jedina.m4a'],
   title: 'Zdravko Čolić – Jedina',
   volume: 0.35,
 }

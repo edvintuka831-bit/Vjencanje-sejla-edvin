@@ -16,8 +16,24 @@ export function useMusic() {
     audio.loop = true
     audio.preload = 'none'
     audio.volume = 0
-    audio.src = MUSIC.src
     audioRef.current = audio
+
+    // Pronađi koji od podržanih fajlova postoji, prije nego gost klikne.
+    let cancelled = false
+    ;(async () => {
+      for (const src of MUSIC.sources) {
+        try {
+          const res = await fetch(src, { method: 'HEAD' })
+          const type = res.headers.get('content-type') || ''
+          if (res.ok && !type.includes('text/html')) {
+            if (!cancelled) audio.src = src
+            return
+          }
+        } catch {
+          // probaj sljedeći
+        }
+      }
+    })()
 
     const onReady = () => setAvailable(true)
     const onPlay = () => setPlaying(true)
@@ -42,6 +58,7 @@ export function useMusic() {
     document.addEventListener('visibilitychange', onVisibility)
 
     return () => {
+      cancelled = true
       cancelAnimationFrame(fadeRef.current)
       audio.pause()
       audio.removeEventListener('canplay', onReady)
@@ -67,7 +84,7 @@ export function useMusic() {
   // Mora se pozvati direktno iz klika.
   const play = useCallback(() => {
     const audio = audioRef.current
-    if (!audio) return
+    if (!audio || !audio.src) return
     const p = audio.play()
     fadeIn(audio)
     if (p && p.then) {

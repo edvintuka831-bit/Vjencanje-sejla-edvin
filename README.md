@@ -12,18 +12,13 @@ Luksuzna digitalna pozivnica (React + Vite, čisti CSS). Bez Supabasea, bez baze
 - Dodaj u kalendar (Google Kalendar i .ics za iPhone/Outlook), Podijeli pozivnicu.
 - Zlatne čestice, cvjetni ukrasi, animirana srca, potpuno responzivno.
 
-## Muzika – VAŽNO
+## Muzika
 
-Audio fajl **nije uključen** u projekat. Stavite svoj fajl ovdje:
+Pjesma **Zdravko Čolić – Jedina** je ugrađena: `public/audio/jedina.mp3` (128 kbps, 3:25).
+Kreće kada gost dodirne pečat, ponavlja se, a dugme dolje desno je uključuje/isključuje.
 
-```
-public/audio/jedina.mp3
-```
-
-(tačno ovaj naziv, mala slova). Podržan je i `public/audio/jedina.m4a` (format iTunes kupovina). Nakon toga ponovo pokrenite `npm run build`.
-Ako fajl ne postoji, dugme za muziku se ne prikazuje i pozivnica radi normalno bez muzike.
-
-Ako postavljate gotov `dist` folder ručno, fajl stavite u `dist/audio/jedina.mp3`.
+Za zamjenu pjesme stavite novi fajl pod istim nazivom (`jedina.mp3` ili `jedina.m4a`) u `public/audio/`
+i ponovo pokrenite `npm run build`. Ako fajla nema, dugme za muziku se ne prikazuje.
 
 ## Izmjena podataka
 

@@ -128,7 +128,7 @@ export default function Rsvp({ notify }) {
 
         <div className="send-grid">
           {CONTACTS.map((c) => (
-            <a key={`v-${c.id}`} className={`btn btn-viber ${sentTo?.id === c.id && sentVia === 'Viber' ? 'is-active' : ''}`} href={viberChatLink(c.phone, message)} onClick={() => openApp(c, 'Viber')}>
+            <a key={`v-${c.id}`} className={`btn btn-viber ${sentTo?.id === c.id && sentVia === 'Viber' ? 'is-active' : ''}`} href={viberChatLink(c.phone)} onClick={() => openApp(c, 'Viber')}>
               <Icon name="viber" size={22} /> Pošalji {c.dative} na Viber
             </a>
           ))}
@@ -145,7 +145,7 @@ export default function Rsvp({ notify }) {
           <div className="howto" role="status">
             <p className="howto-title"><Icon name="check" size={18} /> Otvara se Viber – {recipient.name}, {recipient.display}</p>
             <ol>
-              <li>Ako poruka nije već upisana: dugo pritisnite polje za poruku i odaberite <b>Zalijepi</b> (poruka je kopirana).</li>
+              <li>Poruka je kopirana: dugo pritisnite polje za poruku i odaberite <b>Zalijepi</b>.</li>
               <li>Pritisnite <b>Pošalji</b>. Potvrda je poslana tek kada je pošaljete u Viberu.</li>
             </ol>
           </div>

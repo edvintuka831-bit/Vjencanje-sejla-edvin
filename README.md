@@ -64,7 +64,7 @@ U Netlify postavkama (**Site configuration → Change site name**) možete posta
 Nakon klika na **POTVRDI DOLAZAK** gost bira jedno od četiri dugmeta:
 
 - **Pošalji Edvinu / Šejli na WhatsApp** – otvara se WhatsApp razgovor s tom osobom i poruka je već upisana; gost samo pritisne Pošalji.
-- **Pošalji Edvinu / Šejli na Viber** – otvara se Viber razgovor s tom osobom. Novije verzije Vibera same upišu poruku; ako ne, poruka je već kopirana i gost je samo zalijepi.
+- **Pošalji Edvinu / Šejli na Viber** – otvara se Viber razgovor s tom osobom; poruka je kopirana i gost je samo zalijepi.
 
 Rezervne opcije: **Kopiraj poruku**, Viber s već upisanom porukom (gost sam bira primaoca) i **SMS**.
 Pozivnica nigdje ne tvrdi da je potvrda poslana – slanje završava gost u aplikaciji.

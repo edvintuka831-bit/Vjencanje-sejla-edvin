@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
 import { CONTACTS, DATE_TEXT } from '../config.js'
 import { copyText } from '../utils/clipboard.js'
+import { watchAppLaunch } from '../utils/appLaunch.js'
+import AppHint from './AppHint.jsx'
 import { buildRsvpMessage, smsLink, viberChatLink, viberForwardLink } from '../utils/rsvp.js'
 import Icon from './Icons.jsx'
 import { Divider } from './Ornaments.jsx'
@@ -18,6 +20,7 @@ export default function Rsvp({ notify }) {
   const [open, setOpen] = useState(false)
   const [sentTo, setSentTo] = useState(null)
   const [copied, setCopied] = useState(false)
+  const [viberFailed, setViberFailed] = useState(false)
 
   const message = useMemo(
     () => buildRsvpMessage({ name, attending: attending === true, guests, note }),
@@ -33,6 +36,7 @@ export default function Rsvp({ notify }) {
     if (Object.keys(next).length) return
     setSentTo(null)
     setCopied(false)
+    setViberFailed(false)
     setOpen(true)
   }
 
@@ -47,6 +51,8 @@ export default function Rsvp({ notify }) {
   const openViber = (contact) => {
     copy()
     setSentTo(contact)
+    setViberFailed(false)
+    watchAppLaunch(() => setViberFailed(true))
   }
 
   const recipient = sentTo && CONTACTS.find((c) => c.id === sentTo.id)
@@ -124,6 +130,8 @@ export default function Rsvp({ notify }) {
           ))}
         </div>
 
+        {viberFailed && <AppHint app="Viber" />}
+
         {recipient ? (
           <div className="howto" role="status">
             <p className="howto-title"><Icon name="check" size={18} /> Poruka je kopirana</p>
@@ -149,7 +157,7 @@ export default function Rsvp({ notify }) {
 
         <details className="alt">
           <summary>Viber se ne otvara? Ostale mogućnosti</summary>
-          <a className="sheet-option" href={viberForwardLink(message)}>
+          <a className="sheet-option" href={viberForwardLink(message)} onClick={() => watchAppLaunch(() => setViberFailed(true))}>
             <Icon name="viber" />
             <span><b>Viber s već upisanom porukom</b><small>Poruka je upisana – u Viberu sami odaberite Edvina ili Šejlu</small></span>
           </a>

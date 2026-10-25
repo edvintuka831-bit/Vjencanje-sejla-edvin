@@ -1,0 +1,9 @@
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/audio/*
+  Cache-Control: public, max-age=604800
+
+/*.ics
+  Content-Type: text/calendar; charset=utf-8
+  Content-Disposition: attachment; filename=vjencanje-sejla-edvin.ics

@@ -1,0 +1,23 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Sejla i Edvin//Pozivnica//BS
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:vjencanje-sejla-edvin-20270123@pozivnica
+DTSTAMP:20261025T120000Z
+DTSTART:20270123T140000Z
+DTEND:20270123T230000Z
+SUMMARY:Vjenčanje Šejla & Edvin
+DESCRIPTION:S velikom radošću pozivamo Vas da budete dio našeg najljep
+ šeg dana. Vjenčanje u 15:00\, večera i slavlje u 18:00 – Restoran A
+ DS.
+LOCATION:Restoran ADS
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Sutra je vjenčanje Šejle i Edvina
+TRIGGER:-P1D
+END:VALARM
+END:VEVENT
+END:VCALENDAR

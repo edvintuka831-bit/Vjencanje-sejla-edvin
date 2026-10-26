@@ -6,7 +6,18 @@ import { HttpError } from './http.mjs'
 const COOKIE = 'admin_session'
 const SESSION_DAYS = 7
 
-const password = () => process.env.ADMIN_PASSWORD || ''
+// Netlify.env (novi runtime) ili process.env; razmaci s početka i kraja se zanemaruju.
+const readEnv = (name) => {
+  try {
+    const v = globalThis.Netlify?.env?.get(name)
+    if (v) return v
+  } catch {
+    // stariji runtime nema Netlify.env
+  }
+  return process.env[name] || ''
+}
+
+const password = () => readEnv('ADMIN_PASSWORD').trim()
 
 // Ključ za potpis sesije izveden iz šifre: promjena šifre automatski odjavljuje sve uređaje.
 const sessionKey = () =>
@@ -20,10 +31,21 @@ const safeEqual = (a, b) => {
   return timingSafeEqual(ha, hb)
 }
 
+// Precizna poruka zašto admin nije dostupan (bez otkrivanja same šifre).
 export function assertPasswordConfigured() {
-  if (password().length < 8) {
-    throw new HttpError(503, 'Admin šifra nije postavljena na Netlifyju (ADMIN_PASSWORD, najmanje 8 znakova).')
+  const pw = password()
+  if (pw.length >= 8) return
+  if (pw.length > 0) {
+    throw new HttpError(503, `Varijabla ADMIN_PASSWORD je pronađena, ali ima samo ${pw.length} znakova. Šifra mora imati najmanje 8 znakova.`)
   }
+  const similar = Object.keys(process.env).find((k) => k !== 'ADMIN_PASSWORD' && /admin.?pass|pass.?word|sifra|šifra/i.test(k))
+  if (similar) {
+    throw new HttpError(503, `Pronađena je varijabla "${similar}", ali naziv mora biti tačno ADMIN_PASSWORD (velika slova, donja crta).`)
+  }
+  throw new HttpError(
+    503,
+    'Server ne vidi varijablu ADMIN_PASSWORD. Provjerite naziv, da Scopes uključuje Functions, i da je nakon dodavanja urađen novi deploy.',
+  )
 }
 
 export const checkPassword = (input) => safeEqual(input, password())

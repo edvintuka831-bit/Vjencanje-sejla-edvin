@@ -42,7 +42,7 @@ export default function App() {
           <Hero />
           <Timeline />
           <SaveTheDate notify={notify} />
-          <Rsvp notify={notify} />
+          <Rsvp />
           <Finale />
         </main>
       )}

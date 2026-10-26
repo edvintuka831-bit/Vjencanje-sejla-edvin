@@ -12,7 +12,8 @@ Bez Supabasea, bez baze, bez servera, bez prijave.
   pa radi i nakon osvježavanja stranice.
 - **Program vjenčanja** sa zlatnim ikonama i dugmadima **Otvori navigaciju** (Google Maps).
 - **Muzika** – Zdravko Čolić „Jedina“ (`public/audio/jedina.mp3`).
-- **Potvrda dolaska** putem WhatsAppa, s izborom kome se šalje (Edvin / Šejla).
+- **Potvrda dolaska** – dugme „Potvrdi dolazak“ otvara obrazac; odgovori se trajno spremaju na Netlifyju.
+- **Privatni admin panel** na `/admin` – prijava šifrom, statistika, pretraga, izmjena, brisanje, Excel/CSV.
 - Dodaj u kalendar, Podijeli pozivnicu, završni dio s animiranim srcima i laticama.
 
 ## Izmjena podataka
@@ -35,14 +36,32 @@ Svi tekstovi i podaci su u `src/config.js`: datum, brojevi telefona, program, mu
 - Ako preglednik blokira reprodukciju, pojavi se dugme **Pusti našu pjesmu**.
 - Ako fajl ne postoji, pojavi se dugme koje otvara pjesmu na Spotifyju (`MUSIC.fallbackUrl`).
 
-## Potvrda dolaska – WhatsApp
+## Potvrda dolaska i admin panel
 
-Gost upiše ime i prezime, dolazak, broj osoba, poruku i izabere **Edvin** ili **Šejla**, pa klikne
-**Potvrdi putem WhatsAppa**: otvara se WhatsApp razgovor s izabranom osobom (`wa.me` link)
-i poruka je već upisana. Gost pritisne Pošalji.
+**Gost:** klikne **Potvrdi dolazak** → upiše ime i prezime, Dolazim / Ne dolazim, broj osoba
+(1, 2, 3, 4 ili više – kod „4 ili više“ bira tačan broj), opcionalnu poruku → **Pošalji potvrdu**.
+Odgovor se sprema na server i prikazuje se poruka zahvalnosti. Ako server nije dostupan,
+gost dobije poruku o grešci i mogućnost da potvrdu pošalje putem WhatsAppa – nikad lažno „poslano“.
 
-Pozivnica nigdje ne tvrdi da je potvrda poslana – slanje gost završava u WhatsAppu.
-Ispod se prikazuje i tekst poruke s dugmetom **Kopiraj poruku**.
+**Admin (`/admin`):** prijava šifrom → broj osoba koje dolaze, broj potvrda, ne dolaze, ukupno
+odgovora; pretraga po imenu; filter Svi / Dolaze / Ne dolaze; uređivanje i brisanje;
+**Preuzmi Excel** (.xlsx) i **Preuzmi CSV** – otvaraju se na mobitelu bez instaliranog Excela
+(pregled fajlova, Google Sheets, Numbers).
+
+### Kako je napravljeno (bez Supabasea)
+
+| Dio | Tehnologija |
+|---|---|
+| Spremanje odgovora | **Netlify Blobs** – trajna pohrana ugrađena u Netlify, nema vanjske baze |
+| Server | **Netlify Functions**: `netlify/functions/rsvp.mjs` (`/api/rsvp`), `netlify/functions/admin.mjs` (`/api/admin/*`) |
+| Šifra | Netlify environment variable **`ADMIN_PASSWORD`** – nikad u HTML-u ni JavaScriptu |
+| Sesija | potpisani **HttpOnly** kolačić, vrijedi 7 dana; promjena šifre odjavljuje sve uređaje |
+| Zaštita | 5 pogrešnih šifri → zaključavanje 15 min; ograničenje slanja; skriveno polje protiv spam-botova; admin stranica `noindex` |
+
+### Promjena šifre
+
+Netlify → vaša stranica → **Site configuration → Environment variables → ADMIN_PASSWORD → Edit**,
+upišite novu šifru, sačuvajte, pa **Deploys → Trigger deploy → Deploy site**.
 
 ## Lokalno pokretanje
 
@@ -55,20 +74,44 @@ npm run build     # production build u folder dist/
 npm run preview   # pregled builda
 ```
 
-## Postavljanje na Netlify
+## Postavljanje na Netlify (korak po korak, s mobitela)
 
-### Opcija A – ručno, bez programiranja (najbrže)
+> **Važno:** potvrde dolaska i admin rade preko serverskih funkcija. Netlify ih pokreće samo kada
+> je stranica povezana s GitHubom. Ručno prevlačenje foldera (Netlify Drop) objavljuje samo izgled –
+> potvrde se tada NE bi spremale. Zato koristite korake ispod.
 
-1. Raspakujte **`pozivnica-dist.zip`**.
-2. Otvorite <https://app.netlify.com/drop>.
-3. Prevucite raspakovani folder (onaj u kojem je `index.html`).
-4. Za ažuriranje postojeće stranice: Netlify → vaša stranica → **Deploys** → prevucite novi folder.
+Sve se radi u pregledniku na mobitelu (Chrome ili Safari) na **app.netlify.com**.
 
-### Opcija B – iz izvornog koda / GitHuba
+**1. Povežite stranicu s GitHubom**
 
-1. Netlify → **Add new site → Import an existing project → GitHub** → izaberite ovaj repository.
-2. Postavke se čitaju iz `netlify.toml` (build: `npm run build`, publish: `dist`).
-3. **Deploy**.
+- *Ako već imate stranicu na Netlifyju (napravljenu prevlačenjem):* otvorite je →
+  **Site configuration → Build & deploy → Continuous deployment → Link repository** →
+  **GitHub** → odobrite pristup → izaberite repository **Vjencanje-sejla-edvin**.
+  Link stranice ostaje isti.
+- *Ako pravite novu stranicu:* **Add new site → Import an existing project → GitHub** →
+  izaberite **Vjencanje-sejla-edvin**.
 
-Izvorni kod (`pozivnica-izvorni-kod.zip`) se ne prevlači direktno na Netlify Drop –
-prvo `npm install` i `npm run build`, pa se postavlja sadržaj foldera `dist`.
+Kod izbora grane (*Branch to deploy*) izaberite **`claude/wedding-invitation-sejla-edvin-0pm1rv`**.
+Ostale postavke se čitaju same iz `netlify.toml` (Build command `npm run build`, Publish directory `dist`).
+Kliknite **Deploy**.
+
+**2. Postavite admin šifru**
+
+**Site configuration → Environment variables → Add a variable → Add a single variable**:
+
+- Key: `ADMIN_PASSWORD`
+- Value: vaša šifra (najmanje 8 znakova, preporuka 12+, npr. tri riječi i broj)
+- Sačuvajte (**Create variable**).
+
+**3. Ponovo objavite**
+
+**Deploys → Trigger deploy → Deploy site**. Sačekajte da piše **Published** (1–2 minute).
+
+**4. Provjera**
+
+1. Otvorite pozivnicu, kliknite **Potvrdi dolazak** i pošaljite probnu potvrdu („Test“).
+2. Otvorite **vaš-link.netlify.app/admin**, prijavite se šifrom – „Test“ mora biti na spisku.
+3. Obrišite probni odgovor.
+
+Šifru dajte samo Šejli i Edvinu. Na `/admin` se mogu prijaviti s oba telefona istovremeno.
+

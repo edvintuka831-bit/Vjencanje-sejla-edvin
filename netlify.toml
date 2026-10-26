@@ -5,6 +5,26 @@
 [build.environment]
   NODE_VERSION = "22"
 
+# Serverske funkcije za potvrde dolaska i admin panel (Netlify Functions + Netlify Blobs)
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Admin panel se ne indeksira na pretraživačima
+[[headers]]
+  for = "/admin"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-store"
+    X-Frame-Options = "DENY"
+
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-store"
+    X-Frame-Options = "DENY"
+
 [[headers]]
   for = "/assets/*"
   [headers.values]

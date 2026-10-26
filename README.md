@@ -65,7 +65,7 @@ upišite novu šifru, sačuvajte, pa **Deploys → Trigger deploy → Deploy sit
 
 ## Lokalno pokretanje
 
-Potreban je Node.js 20.19 ili noviji.
+Potreban je Node.js 22.12 ili noviji.
 
 ```bash
 npm install

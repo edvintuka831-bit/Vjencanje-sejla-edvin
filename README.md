@@ -12,7 +12,7 @@ Bez Supabasea, bez baze, bez servera, bez prijave.
   pa radi i nakon osvježavanja stranice.
 - **Program vjenčanja** sa zlatnim ikonama i dugmadima **Otvori navigaciju** (Google Maps).
 - **Muzika** – Zdravko Čolić „Jedina“ (`public/audio/jedina.mp3`).
-- **Potvrda dolaska** putem Vibera ili WhatsAppa, s izborom kome se šalje (Edvin / Šejla).
+- **Potvrda dolaska** putem WhatsAppa, s izborom kome se šalje (Edvin / Šejla).
 - Dodaj u kalendar, Podijeli pozivnicu, završni dio s animiranim srcima i laticama.
 
 ## Izmjena podataka
@@ -35,21 +35,14 @@ Svi tekstovi i podaci su u `src/config.js`: datum, brojevi telefona, program, mu
 - Ako preglednik blokira reprodukciju, pojavi se dugme **Pusti našu pjesmu**.
 - Ako fajl ne postoji, pojavi se dugme koje otvara pjesmu na Spotifyju (`MUSIC.fallbackUrl`).
 
-## Potvrda dolaska – Viber i WhatsApp
+## Potvrda dolaska – WhatsApp
 
-Gost upiše ime i prezime, dolazak, broj osoba, poruku i izabere **Edvin** ili **Šejla**, pa klikne:
+Gost upiše ime i prezime, dolazak, broj osoba, poruku i izabere **Edvin** ili **Šejla**, pa klikne
+**Potvrdi putem WhatsAppa**: otvara se WhatsApp razgovor s izabranom osobom (`wa.me` link)
+i poruka je već upisana. Gost pritisne Pošalji.
 
-- **Potvrdi putem WhatsAppa** – otvara se WhatsApp razgovor s izabranom osobom (`wa.me` link)
-  i poruka je već upisana. Gost pritisne Pošalji.
-- **Potvrdi putem Vibera** – otvara se Viber razgovor s izabranom osobom. Viber za ovaj način
-  otvaranja ne podržava unaprijed upisanu poruku, zato se poruka automatski kopira i gost dobije
-  uputstvo da je zalijepi i pošalje. Na Androidu se koristi intent link (testirano: radi).
-
-Rezervne opcije: Kopiraj poruku, Viber s već upisanom porukom (gost bira primaoca) i SMS.
-Pozivnica nigdje ne tvrdi da je potvrda poslana – slanje gost završava u aplikaciji.
-
-`/viber-test.html` je skrivena probna stranica za provjeru Viber linkova na telefonima (nije povezana
-s pozivnicom). Može se obrisati iz `public/` kada više ne treba.
+Pozivnica nigdje ne tvrdi da je potvrda poslana – slanje gost završava u WhatsAppu.
+Ispod se prikazuje i tekst poruke s dugmetom **Kopiraj poruku**.
 
 ## Lokalno pokretanje
 

@@ -83,9 +83,6 @@ export default function SaveTheDate({ notify }) {
 
       <Sheet open={sheet === 'share'} title="Podijeli pozivnicu" onClose={close}>
         <div className="sheet-list">
-          <a className="sheet-option" href={`viber://forward?text=${encodeURIComponent(shareText)}`} onClick={() => launch('Viber')}>
-            <Icon name="viber" /> <span><b>Viber</b><small>Odaberite kome šaljete</small></span>
-          </a>
           <a className="sheet-option" href={`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`} target={isInAppBrowser() ? undefined : '_blank'} rel="noopener noreferrer" onClick={() => launch('WhatsApp')}>
             <Icon name="whatsapp" /> <span><b>WhatsApp</b><small>Odaberite kome šaljete</small></span>
           </a>

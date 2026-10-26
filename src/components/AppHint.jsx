@@ -1,6 +1,6 @@
 import { isInAppBrowser } from '../utils/appLaunch.js'
 
-// Uputa kada se Viber/WhatsApp ne otvori nakon klika.
+// Uputa kada se WhatsApp ne otvori nakon klika.
 export default function AppHint({ app, what = 'poruku' }) {
   return (
     <div className="app-hint" role="status">

@@ -1,4 +1,4 @@
-// Preglednik ne javlja da li se aplikacija (Viber/WhatsApp) otvorila.
+// Preglednik ne javlja da li se aplikacija (WhatsApp) otvorila.
 // Ako stranica nakon klika ostane vidljiva i aktivna, aplikacija se vjerovatno
 // nije otvorila (nije instalirana ili ugrađeni preglednik blokira link).
 export function watchAppLaunch(onFail, ms = 2000) {

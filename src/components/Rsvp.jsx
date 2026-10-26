@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from 'react'
 import { CONTACTS, DATE_TEXT } from '../config.js'
 import { copyText } from '../utils/clipboard.js'
 import { isInAppBrowser, watchAppLaunch } from '../utils/appLaunch.js'
-import { buildRsvpMessage, smsLink, viberChatLink, viberForwardLink, whatsappLink } from '../utils/rsvp.js'
+import { buildRsvpMessage, whatsappLink } from '../utils/rsvp.js'
 import AppHint from './AppHint.jsx'
 import Icon from './Icons.jsx'
 import { Divider } from './Ornaments.jsx'
@@ -50,16 +50,15 @@ export default function Rsvp({ notify }) {
     return ok
   }
 
-  // Pravi <a> link otvara aplikaciju; ovdje samo provjera forme i uputstvo.
-  const onSend = (app) => (e) => {
+  // Pravi <a> link otvara WhatsApp; ovdje samo provjera forme i uputstvo.
+  const onSend = (e) => {
     if (!validate()) {
       e.preventDefault()
       return
     }
-    if (app === 'Viber') copy()
-    setSent({ app, contact })
+    setSent({ contact })
     setFailedApp(null)
-    watchAppLaunch(() => setFailedApp(app))
+    watchAppLaunch(() => setFailedApp('WhatsApp'))
     setTimeout(() => statusRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 400)
   }
 
@@ -70,7 +69,6 @@ export default function Rsvp({ notify }) {
     setCopied(false)
   }
 
-  const viberHref = contact ? viberChatLink(contact.phone) : '#potvrda'
   const waHref = contact ? whatsappLink(contact.phone, message) : '#potvrda'
   const waTarget = contact && !isInAppBrowser() ? '_blank' : undefined
 
@@ -146,31 +144,18 @@ export default function Rsvp({ notify }) {
           </fieldset>
 
           <div className="send-buttons">
-            <a className="btn btn-viber btn-lg" href={viberHref} onClick={onSend('Viber')}>
-              <Icon name="viber" size={24} /> Potvrdi putem Vibera
-            </a>
-            <a className="btn btn-whatsapp btn-lg" href={waHref} target={waTarget} rel="noopener noreferrer" onClick={onSend('WhatsApp')}>
+            <a className="btn btn-whatsapp btn-lg" href={waHref} target={waTarget} rel="noopener noreferrer" onClick={onSend}>
               <Icon name="whatsapp" size={24} /> Potvrdi putem WhatsAppa
             </a>
           </div>
 
           <div ref={statusRef}>
-            {sent?.app === 'WhatsApp' && (
+            {sent && (
               <div className="howto howto-wa" role="status">
                 <p className="howto-title"><Icon name="check" size={18} /> Otvara se WhatsApp – {sent.contact.name}, {sent.contact.display}</p>
                 <ol>
                   <li>Poruka je već upisana u razgovor.</li>
                   <li>Pritisnite <b>Pošalji</b> u WhatsAppu. Potvrda je poslana tek tada.</li>
-                </ol>
-              </div>
-            )}
-            {sent?.app === 'Viber' && (
-              <div className="howto" role="status">
-                <p className="howto-title"><Icon name="check" size={18} /> Otvara se Viber – {sent.contact.name}, {sent.contact.display}</p>
-                <ol>
-                  <li>Poruka je kopirana. Viber ne dozvoljava da je upišemo umjesto Vas.</li>
-                  <li>U razgovoru dugo pritisnite polje za poruku i odaberite <b>Zalijepi</b>.</li>
-                  <li>Pritisnite <b>Pošalji</b>. Potvrda je poslana tek tada.</li>
                 </ol>
               </div>
             )}
@@ -189,19 +174,6 @@ export default function Rsvp({ notify }) {
             </div>
           )}
 
-          {sent && contact && (
-            <details className="alt">
-              <summary>Aplikacija se ne otvara? Ostale mogućnosti</summary>
-              <a className="sheet-option" href={viberForwardLink(message)} onClick={() => watchAppLaunch(() => setFailedApp('Viber'))}>
-                <Icon name="viber" />
-                <span><b>Viber s već upisanom porukom</b><small>U Viberu sami odaberite osobu: {contact.name}</small></span>
-              </a>
-              <a className="sheet-option" href={smsLink(contact.phone, message)}>
-                <Icon name="sms" />
-                <span><b>Pošalji SMS – {contact.name}</b><small>{contact.display}</small></span>
-              </a>
-            </details>
-          )}
         </div>
       </div>
     </Section>

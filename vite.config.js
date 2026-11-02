@@ -1,10 +1,16 @@
+import { copyFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // Netlify postavlja varijablu URL tokom builda – koristi se za apsolutni
 // link na sliku za pregled (Viber/WhatsApp/Facebook trebaju puni URL).
-const siteUrl = (process.env.URL || '').replace(/\/$/, '')
+const siteUrl = (process.env.SITE_URL || process.env.URL || '').replace(/\/$/, '')
+
+// SITE_VARIANT=restoran: build za zasebnu Netlify stranicu samo za svadbeno slavlje.
+// Početna stranica (/) tada prikazuje restoransku pozivnicu; /restoran radi i dalje.
+const variant = process.env.SITE_VARIANT || ''
+const outDir = resolve(import.meta.dirname, 'dist')
 
 export default defineConfig({
   plugins: [
@@ -13,6 +19,14 @@ export default defineConfig({
       name: 'og-absolute-url',
       transformIndexHtml(html) {
         return html.replaceAll('%SITE_URL%', siteUrl)
+      },
+    },
+    {
+      name: 'restoran-as-home',
+      apply: 'build',
+      closeBundle() {
+        if (variant !== 'restoran') return
+        copyFileSync(resolve(outDir, 'restoran/index.html'), resolve(outDir, 'index.html'))
       },
     },
   ],

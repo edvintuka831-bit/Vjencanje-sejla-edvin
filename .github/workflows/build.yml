@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: c9a333ef68f384f14c9116e54c780dfc21f69ce6
+          ref: 1669b5ab3c2cfb2ffc2badfb52a69005dada4065
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -25,11 +25,11 @@ jobs:
           test -f dist/index.html
           (cd dist && zip -qr -X ../sejla-edvin-restoran.zip .)
           (cd dist && find . -type f | sort | xargs ls -l) > dist-listing.txt
-          { echo "commit: c9a333ef68f384f14c9116e54c780dfc21f69ce6"; node -v; npm -v; date -u; } > build-info.txt
+          { echo "commit: 1669b5ab3c2cfb2ffc2badfb52a69005dada4065"; node -v; npm -v; date -u; } > build-info.txt
       - name: Spremi rezultat na granu build-output
         run: |
           mkdir out && cp sejla-edvin-restoran.zip dist-listing.txt build.log npm-install.log build-info.txt out/
           cd out && git init -q -b build-output
           git -c user.name=github-actions -c user.email=actions@github.com add -A
-          git -c user.name=github-actions -c user.email=actions@github.com commit -qm "Build c9a333ef68f384f14c9116e54c780dfc21f69ce6"
+          git -c user.name=github-actions -c user.email=actions@github.com commit -qm "Build 1669b5ab3c2cfb2ffc2badfb52a69005dada4065"
           git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" build-output

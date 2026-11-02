@@ -101,7 +101,7 @@ export default function RestoranRsvp() {
       })
       const data = await res.json().catch(() => ({}))
       // Uspjeh se prikazuje samo kada server potvrdi da je zapis spremljen (vraća id zapisa).
-      if (!res.ok || !data.ok || !data.id) throw new Error(data.error || 'Potvrda nije spremljena. Pokušajte ponovo.')
+      if (!res.ok || !data.ok || !data.id) throw new Error(data.error || 'Server trenutno ne prima potvrde. Pokušajte ponovo kasnije.')
       const record = {
         id: data.id,
         name: `${payload.firstName} ${payload.lastName}`,

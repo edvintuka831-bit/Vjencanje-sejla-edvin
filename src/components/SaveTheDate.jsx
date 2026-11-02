@@ -7,13 +7,13 @@ import Icon from './Icons.jsx'
 import Section from './Section.jsx'
 import Sheet from './Sheet.jsx'
 
-const googleCalendarUrl = () => {
+const googleCalendarUrl = (cal) => {
   const p = new URLSearchParams({
     action: 'TEMPLATE',
-    text: CALENDAR.title,
-    dates: `${CALENDAR.start}/${CALENDAR.end}`,
-    details: CALENDAR.details,
-    location: CALENDAR.location,
+    text: cal.title,
+    dates: `${cal.start}/${cal.end}`,
+    details: cal.details,
+    location: cal.location,
     ctz: 'Europe/Sarajevo',
   })
   return `https://calendar.google.com/calendar/render?${p}`
@@ -21,7 +21,8 @@ const googleCalendarUrl = () => {
 
 const pageUrl = () => window.location.origin + window.location.pathname
 
-export default function SaveTheDate({ notify }) {
+// calendar/share su opcionalni – bez njih se koriste podaci originalne pozivnice.
+export default function SaveTheDate({ notify, calendar = CALENDAR, share: shareInfo = SHARE }) {
   const [sheet, setSheet] = useState(null)
   const [failedApp, setFailedApp] = useState(null)
   const close = () => {
@@ -38,7 +39,7 @@ export default function SaveTheDate({ notify }) {
   }
 
   const share = async () => {
-    const data = { title: SHARE.title, text: SHARE.text, url: pageUrl() }
+    const data = { title: shareInfo.title, text: shareInfo.text, url: pageUrl() }
     if (navigator.share) {
       try {
         await navigator.share(data)
@@ -56,7 +57,7 @@ export default function SaveTheDate({ notify }) {
     if (ok) close()
   }
 
-  const shareText = `${SHARE.text}\n${pageUrl()}`
+  const shareText = `${shareInfo.text}\n${pageUrl()}`
 
   return (
     <Section id="sacuvajte-datum" className="actions">
@@ -72,10 +73,10 @@ export default function SaveTheDate({ notify }) {
 
       <Sheet open={sheet === 'calendar'} title="Dodaj u kalendar" onClose={close}>
         <div className="sheet-list">
-          <a className="sheet-option" href={googleCalendarUrl()} target="_blank" rel="noopener noreferrer" onClick={closeSoon}>
+          <a className="sheet-option" href={googleCalendarUrl(calendar)} target="_blank" rel="noopener noreferrer" onClick={closeSoon}>
             <Icon name="google" /> <span><b>Google Kalendar</b><small>Android i web</small></span>
           </a>
-          <a className="sheet-option" href={CALENDAR.icsFile} download="vjencanje-sejla-edvin.ics" onClick={closeSoon}>
+          <a className="sheet-option" href={calendar.icsFile} download={calendar.icsName || 'vjencanje-sejla-edvin.ics'} onClick={closeSoon}>
             <Icon name="apple" /> <span><b>Apple / Outlook kalendar</b><small>iPhone, iPad, Mac, Windows (.ics)</small></span>
           </a>
         </div>

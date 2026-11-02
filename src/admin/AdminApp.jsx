@@ -3,6 +3,9 @@ import { api, AuthError } from './api.js'
 import { downloadCsv, downloadXlsx, formatDate } from './exports.js'
 
 const MAX_GUESTS = 20
+// Stari zapisi (prije restoranske verzije) nemaju oznaku – svi su s originalne pozivnice.
+const invitationOf = (r) => (r.invitation === 'restoran' ? 'restoran' : 'program')
+const INVITATION_LABEL = { program: 'Cijeli program', restoran: 'Restoran' }
 const osoba = (n) => (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 'osobe' : 'osoba')
 
 function Login({ onLoggedIn, notice }) {
@@ -54,7 +57,10 @@ function Login({ onLoggedIn, notice }) {
 }
 
 function EditDialog({ rsvp, onClose, onSaved, onExpired }) {
+  const split = typeof rsvp.firstName === 'string'
   const [name, setName] = useState(rsvp.name)
+  const [firstName, setFirstName] = useState(rsvp.firstName || '')
+  const [lastName, setLastName] = useState(rsvp.lastName || '')
   const [attending, setAttending] = useState(rsvp.attending)
   const [guests, setGuests] = useState(rsvp.attending ? rsvp.guests : 1)
   const [note, setNote] = useState(rsvp.note || '')
@@ -66,7 +72,8 @@ function EditDialog({ rsvp, onClose, onSaved, onExpired }) {
     setBusy(true)
     setError('')
     try {
-      const updated = await api.update(rsvp.id, { name, attending, guests: attending ? guests : 0, note })
+      const who = split ? { firstName, lastName } : { name }
+      const updated = await api.update(rsvp.id, { ...who, attending, guests: attending ? guests : 0, note })
       onSaved(updated)
     } catch (err) {
       if (err instanceof AuthError) return onExpired(err.message)
@@ -79,10 +86,24 @@ function EditDialog({ rsvp, onClose, onSaved, onExpired }) {
     <div className="a-backdrop" onClick={onClose}>
       <form className="a-card a-dialog" onClick={(e) => e.stopPropagation()} onSubmit={save}>
         <h2>Uredi odgovor</h2>
-        <label className="a-field">
-          <span>Ime i prezime</span>
-          <input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} />
-        </label>
+        <p className="a-muted">Pozivnica: {INVITATION_LABEL[invitationOf(rsvp)]}</p>
+        {split ? (
+          <>
+            <label className="a-field">
+              <span>Ime</span>
+              <input value={firstName} onChange={(e) => setFirstName(e.target.value)} maxLength={40} />
+            </label>
+            <label className="a-field">
+              <span>Prezime</span>
+              <input value={lastName} onChange={(e) => setLastName(e.target.value)} maxLength={40} />
+            </label>
+          </>
+        ) : (
+          <label className="a-field">
+            <span>Ime i prezime</span>
+            <input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} />
+          </label>
+        )}
         <div className="a-field">
           <span>Dolazak</span>
           <div className="a-seg">
@@ -119,6 +140,7 @@ function Dashboard({ onLogout, onExpired }) {
   const [error, setError] = useState('')
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState('all')
+  const [invitation, setInvitation] = useState('all') // all | program | restoran
   const [editing, setEditing] = useState(null)
   const [loading, setLoading] = useState(false)
 
@@ -148,7 +170,7 @@ function Dashboard({ onLogout, onExpired }) {
   }, [load])
 
   const stats = useMemo(() => {
-    const all = list || []
+    const all = (list || []).filter((r) => invitation === 'all' || invitationOf(r) === invitation)
     const yes = all.filter((r) => r.attending)
     return {
       total: all.length,
@@ -156,16 +178,17 @@ function Dashboard({ onLogout, onExpired }) {
       no: all.length - yes.length,
       guests: yes.reduce((s, r) => s + r.guests, 0),
     }
-  }, [list])
+  }, [list, invitation])
 
   const visible = useMemo(() => {
     const q = query.trim().toLocaleLowerCase('bs')
     return (list || []).filter(
       (r) =>
+        (invitation === 'all' || invitationOf(r) === invitation) &&
         (filter === 'all' || (filter === 'yes' ? r.attending : !r.attending)) &&
         (!q || r.name.toLocaleLowerCase('bs').includes(q)),
     )
-  }, [list, query, filter])
+  }, [list, query, filter, invitation])
 
   const remove = async (r) => {
     if (!window.confirm(`Obrisati odgovor: ${r.name}?\nOvo se ne može poništiti.`)) return
@@ -204,6 +227,11 @@ function Dashboard({ onLogout, onExpired }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
+        <div className="a-seg" role="group" aria-label="Pozivnica">
+          <button className={invitation === 'all' ? 'on' : ''} onClick={() => setInvitation('all')}>Sve</button>
+          <button className={invitation === 'program' ? 'on' : ''} onClick={() => setInvitation('program')}>Cijeli program</button>
+          <button className={invitation === 'restoran' ? 'on' : ''} onClick={() => setInvitation('restoran')}>Restoran</button>
+        </div>
         <div className="a-seg">
           <button className={filter === 'all' ? 'on' : ''} onClick={() => setFilter('all')}>Svi</button>
           <button className={filter === 'yes' ? 'on' : ''} onClick={() => setFilter('yes')}>Dolaze</button>
@@ -232,6 +260,7 @@ function Dashboard({ onLogout, onExpired }) {
                   {r.attending ? `Dolazi · ${r.guests} ${osoba(r.guests)}` : 'Ne dolazi'}
                 </span>
               </div>
+              <p className="a-inv">{INVITATION_LABEL[invitationOf(r)]}</p>
               {r.note && <p className="a-note">„{r.note}“</p>}
               <p className="a-date">
                 Potvrđeno: {formatDate(r.createdAt)}

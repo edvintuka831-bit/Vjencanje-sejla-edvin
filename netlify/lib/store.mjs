@@ -9,6 +9,12 @@ export const securityStore = () => getStore({ name: 'rsvp-security', consistency
 
 export const MAX_GUESTS = 20
 
+// Koja verzija pozivnice je poslala potvrdu:
+//  program  – originalna pozivnica (cijeli program, /)
+//  restoran – pozivnica samo za svadbeno slavlje u restoranu (/restoran)
+export const INVITATIONS = ['program', 'restoran']
+export const invitationOf = (value) => (INVITATIONS.includes(value) ? value : 'program')
+
 export const hashIp = (ip) => createHash('sha256').update(`ip:${ip || 'unknown'}`).digest('hex').slice(0, 32)
 
 const clean = (v, max) =>
@@ -20,8 +26,21 @@ const clean = (v, max) =>
 
 // Provjera podataka – ista za slanje gosta i izmjenu u adminu.
 export function validateRsvp(body) {
-  const name = clean(body.name, 80)
-  if (name.length < 2) throw new HttpError(400, 'Molimo upišite ime i prezime.')
+  // Restoranska pozivnica šalje ime i prezime odvojeno; originalna šalje jedno polje "name".
+  const split = body.firstName !== undefined || body.lastName !== undefined
+  let firstName = ''
+  let lastName = ''
+  let name
+  if (split) {
+    firstName = clean(body.firstName, 40)
+    lastName = clean(body.lastName, 40)
+    if (firstName.length < 2) throw new HttpError(400, 'Molimo upišite ime.')
+    if (lastName.length < 2) throw new HttpError(400, 'Molimo upišite prezime.')
+    name = `${firstName} ${lastName}`
+  } else {
+    name = clean(body.name, 80)
+    if (name.length < 2) throw new HttpError(400, 'Molimo upišite ime i prezime.')
+  }
   if (typeof body.attending !== 'boolean') throw new HttpError(400, 'Molimo odaberite da li dolazite.')
   const attending = body.attending
   let guests = 0
@@ -32,7 +51,7 @@ export function validateRsvp(body) {
     }
   }
   const note = String(body.note ?? '').replace(/\r/g, '').trim().slice(0, 500)
-  return { name, attending, guests, note }
+  return split ? { name, firstName, lastName, attending, guests, note } : { name, attending, guests, note }
 }
 
 export const newId = () => `${Date.now().toString(36)}-${randomUUID().slice(0, 8)}`

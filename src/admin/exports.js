@@ -17,11 +17,12 @@ export function formatDate(iso) {
   return `${p.day}.${p.month}.${p.year}. ${p.hour}:${p.minute}`
 }
 
-const HEADER = ['Ime i prezime', 'Dolazak', 'Broj osoba', 'Poruka', 'Datum potvrde', 'Zadnja izmjena']
+const HEADER = ['Ime i prezime', 'Pozivnica', 'Dolazak', 'Broj osoba', 'Poruka', 'Datum potvrde', 'Zadnja izmjena']
 
 const rows = (list) =>
   list.map((r) => [
     r.name,
+    r.invitation === 'restoran' ? 'Restoran' : 'Cijeli program',
     r.attending ? 'Dolazi' : 'Ne dolazi',
     r.attending ? r.guests : 0,
     r.note || '',
@@ -61,7 +62,7 @@ export function downloadXlsx(list) {
   const col = (i) => String.fromCharCode(65 + i)
   const all = [HEADER, ...rows(list)]
   const totalGuests = list.reduce((s, r) => s + (r.attending ? r.guests : 0), 0)
-  all.push([], ['Ukupno osoba koje dolaze', '', totalGuests])
+  all.push([], ['Ukupno osoba koje dolaze', '', '', totalGuests])
 
   const sheetRows = all
     .map((row, ri) => {
@@ -78,7 +79,7 @@ export function downloadXlsx(list) {
     })
     .join('')
 
-  const widths = [28, 12, 12, 45, 18, 18].map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join('')
+  const widths = [28, 16, 12, 12, 45, 18, 18].map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join('')
 
   const files = {
     '[Content_Types].xml':

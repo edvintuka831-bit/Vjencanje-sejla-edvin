@@ -1,5 +1,5 @@
 import { fail, handle, json, readJson } from '../lib/http.mjs'
-import { hashIp, newId, rsvpStore, securityStore, validateRsvp } from '../lib/store.mjs'
+import { hashIp, invitationOf, newId, rsvpStore, securityStore, validateRsvp } from '../lib/store.mjs'
 
 // Mobilni operateri često dijele istu IP adresu među mnogo korisnika, pa je granica velikodušna.
 const MAX_PER_HOUR = 60
@@ -22,8 +22,13 @@ export default handle(async (req, context) => {
   await security.setJSON(hourKey, count + 1)
 
   const now = new Date().toISOString()
-  const record = { id: newId(), ...data, createdAt: now, updatedAt: now }
-  await rsvpStore().setJSON(record.id, record)
+  const record = { id: newId(), invitation: invitationOf(body.invitation), ...data, createdAt: now, updatedAt: now }
+  const store = rsvpStore()
+  await store.setJSON(record.id, record)
+
+  // Gost vidi "potvrda spremljena" samo ako je zapis stvarno pročitan nazad iz pohrane.
+  const stored = await store.get(record.id, { type: 'json' })
+  if (!stored || stored.id !== record.id) return fail(500, 'Potvrda nije spremljena. Pokušajte ponovo.')
 
   return json({ ok: true, id: record.id }, 201)
 })

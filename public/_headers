@@ -4,6 +4,10 @@
 /audio/*
   Cache-Control: public, max-age=604800
 
-/*.ics
+/vjencanje-sejla-edvin.ics
   Content-Type: text/calendar; charset=utf-8
   Content-Disposition: attachment; filename=vjencanje-sejla-edvin.ics
+
+/slavlje-sejla-edvin.ics
+  Content-Type: text/calendar; charset=utf-8
+  Content-Disposition: attachment; filename=slavlje-sejla-edvin.ics

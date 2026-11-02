@@ -56,6 +56,11 @@ async function rsvps(req, id) {
   if (req.method === 'PUT') {
     const data = validateRsvp(await readJson(req))
     const updated = { ...existing, ...data, updatedAt: new Date().toISOString() }
+    // Izmjena jednog polja "Ime i prezime" na zapisu koji je imao odvojeno ime/prezime.
+    if (!('firstName' in data)) {
+      delete updated.firstName
+      delete updated.lastName
+    }
     await store.setJSON(id, updated)
     return json({ rsvp: updated })
   }

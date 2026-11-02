@@ -16,6 +16,23 @@ Bez Supabasea, bez baze, bez servera, bez prijave.
 - **Privatni admin panel** na `/admin` – prijava šifrom, statistika, pretraga, izmjena, brisanje, Excel/CSV.
 - Dodaj u kalendar, Podijeli pozivnicu, završni dio s animiranim srcima i laticama.
 
+## Dvije verzije pozivnice
+
+| Link | Za koga | Sadržaj |
+|---|---|---|
+| `vaš-link.netlify.app/` | gosti na cijelom programu | okupljanje, vjenčanje 15:00, slavlje 18:00 (original, nepromijenjen) |
+| `vaš-link.netlify.app/restoran` | gosti samo na svadbenom slavlju | dolazak u restoran 18:00, ADS Caffe & Restaurant |
+
+Restoranska verzija koristi isti dizajn (koverta s pečatom, latice, iskre, zlatni ornamenti, muzika),
+odbrojavanje do 23.01.2027. u 18:00, dugme **Otvori navigaciju** (Google Maps, tačan objekat
+„ADS Caffe & Restoran“, 311. lahke brigade, Kakanj – `place_id ChIJpfvB3TQnX0cRFN6wGgUzB9E`),
+Dodaj u kalendar (`public/slavlje-sejla-edvin.ics`), Podijeli pozivnicu i potvrdu dolaska s
+**imenom, prezimenom i brojem gostiju**. Podaci verzije su u `src/restoran/config.js`.
+
+Obje verzije spremaju potvrde na isto mjesto. U adminu (`/admin`) svaka potvrda ima oznaku
+**Cijeli program** ili **Restoran**, a filter iznad liste prikazuje zbir gostiju po verziji.
+Excel/CSV imaju kolonu „Pozivnica“. Gost vidi „Hvala“ tek kada server potvrdi da je zapis spremljen.
+
 ## Izmjena podataka
 
 Svi tekstovi i podaci su u `src/config.js`: datum, brojevi telefona, program, muzika.

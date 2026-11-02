@@ -35,8 +35,20 @@
   [headers.values]
     Cache-Control = "public, max-age=604800"
 
+# Pozivnica za svadbeno slavlje u restoranu: /restoran (bez kose crte na kraju)
+[[redirects]]
+  from = "/restoran"
+  to = "/restoran/index.html"
+  status = 200
+
 [[headers]]
-  for = "/*.ics"
+  for = "/vjencanje-sejla-edvin.ics"
   [headers.values]
     Content-Type = "text/calendar; charset=utf-8"
     Content-Disposition = "attachment; filename=vjencanje-sejla-edvin.ics"
+
+[[headers]]
+  for = "/slavlje-sejla-edvin.ics"
+  [headers.values]
+    Content-Type = "text/calendar; charset=utf-8"
+    Content-Disposition = "attachment; filename=slavlje-sejla-edvin.ics"

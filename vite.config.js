@@ -19,9 +19,11 @@ export default defineConfig({
   build: {
     target: 'es2019',
     rollupOptions: {
-      // Dvije stranice: pozivnica (/) i privatni admin panel (/admin)
+      // Tri stranice: pozivnica za cijeli program (/), pozivnica za svadbeno
+      // slavlje u restoranu (/restoran) i privatni admin panel (/admin)
       input: {
         main: resolve(import.meta.dirname, 'index.html'),
+        restoran: resolve(import.meta.dirname, 'restoran/index.html'),
         admin: resolve(import.meta.dirname, 'admin/index.html'),
       },
     },

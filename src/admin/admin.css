@@ -125,6 +125,7 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
 .a-badge.yes { background: #e9f4e8; color: #2f6b2c; }
 .a-badge.no { background: #f6ebe6; color: #8f3f27; }
 .a-note { margin: 0; font-style: italic; color: var(--ink-soft); overflow-wrap: anywhere; }
+.a-inv { margin: 0; font-family: var(--font-caps, serif); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold-deep, #8c6a2e); }
 .a-date { margin: 0; font-size: 15px; color: var(--ink-soft); }
 
 .a-stepper { display: inline-flex; align-items: center; gap: 6px; }

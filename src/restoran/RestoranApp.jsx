@@ -10,6 +10,7 @@ import { useMusic } from '../hooks/useMusic.js'
 import { RESTORAN_CALENDAR, RESTORAN_SHARE } from './config.js'
 import RestoranHero from './RestoranHero.jsx'
 import RestoranRsvp from './RestoranRsvp.jsx'
+import WeddingCar from './WeddingCar.jsx'
 
 // Verzija pozivnice za goste koji dolaze samo na svadbeno slavlje u restoranu.
 // Isti dizajn i efekti kao originalna pozivnica; bez okupljanja i ceremonije.
@@ -42,6 +43,7 @@ export default function RestoranApp() {
       {opened && (
         <main className="invitation">
           <RestoranHero />
+          <WeddingCar />
           <SaveTheDate notify={notify} calendar={RESTORAN_CALENDAR} share={RESTORAN_SHARE} />
           <RestoranRsvp />
           <Finale />

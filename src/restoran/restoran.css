@@ -82,3 +82,193 @@
     animation: none;
   }
 }
+
+/* ---------- Animirani svadbeni automobil ---------- */
+.car-section {
+  max-width: 720px;
+  padding: 0 16px;
+}
+
+.car-stage {
+  display: block;
+  width: 100%;
+  margin: 10px auto 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.car-stage svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.car-caption {
+  margin: 6px 0 0;
+  font-family: var(--font-script);
+  font-size: clamp(30px, 8vw, 44px);
+  line-height: 1.2;
+  color: var(--gold-deep);
+}
+
+.car-caption b {
+  font-weight: 400;
+  background: var(--gold-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.car-initials {
+  font-family: var(--font-script);
+  font-size: 15px;
+  fill: #a9843f;
+}
+
+.car-plate {
+  font-family: var(--font-caps);
+  font-size: 7px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  fill: #8c6a2e;
+}
+
+.venue-sign {
+  font-family: var(--font-caps);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  fill: #8c6a2e;
+}
+
+.venue-window {
+  fill: #ffe7a8;
+  stroke: #c9a55e;
+  stroke-width: 1;
+  animation: venue-glow 3.2s ease-in-out infinite;
+}
+
+@keyframes venue-glow {
+  0%, 100% { fill: #fbe9bd; }
+  50% { fill: #ffdf8e; }
+}
+
+.car-star {
+  opacity: 0.2;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: car-twinkle 2.8s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.55s);
+}
+
+@keyframes car-twinkle {
+  0%, 100% { opacity: 0.15; transform: scale(0.6); }
+  50% { opacity: 0.9; transform: scale(1); }
+}
+
+/* Prije ulaska u vidno polje automobil čeka izvan scene */
+.car-move {
+  transform: translateX(-470px);
+}
+
+.car-wheel-spin {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.car-beam {
+  opacity: 0;
+}
+
+.car-heart {
+  fill: #d9b46a;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* Vožnja: 4,2 s dolazak s usporavanjem, točkovi i cesta usklađeni */
+.reveal.is-visible .car-move {
+  animation: car-drive 4.2s cubic-bezier(0.22, 0.61, 0.25, 1) 0.4s both;
+}
+
+.reveal.is-visible .car-wheel-spin {
+  animation: car-wheel 4.2s cubic-bezier(0.22, 0.61, 0.25, 1) 0.4s both;
+}
+
+.reveal.is-visible .car-road {
+  animation: car-road 4.2s cubic-bezier(0.22, 0.61, 0.25, 1) 0.4s both;
+}
+
+.reveal.is-visible .car-body-bob {
+  animation: car-bob 0.42s ease-in-out 0.4s 10 alternate, car-idle 2.6s ease-in-out 4.6s infinite;
+}
+
+.reveal.is-visible .car-beam {
+  animation: car-beam 1.2s ease 3.4s both;
+}
+
+.reveal.is-visible .car-heart {
+  animation: car-heart-rise 3.4s ease-out infinite;
+  animation-delay: calc(4.4s + var(--i) * 0.65s);
+}
+
+@keyframes car-drive {
+  from { transform: translateX(-470px); }
+  to { transform: translateX(0); }
+}
+
+@keyframes car-wheel {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(1080deg); }
+}
+
+@keyframes car-road {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: 470; }
+}
+
+@keyframes car-bob {
+  from { transform: translateY(0); }
+  to { transform: translateY(-1.6px); }
+}
+
+@keyframes car-idle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-0.8px); }
+}
+
+@keyframes car-beam {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes car-heart-rise {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.4); }
+  15% { opacity: 0.95; }
+  100% { opacity: 0; transform: translate(calc((var(--i) - 2) * 9px), -70px) scale(1.15); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .car-move,
+  .reveal.is-visible .car-move {
+    transform: none;
+    animation: none;
+  }
+  .reveal.is-visible .car-wheel-spin,
+  .reveal.is-visible .car-road,
+  .reveal.is-visible .car-body-bob,
+  .car-star,
+  .venue-window {
+    animation: none;
+  }
+  .car-beam,
+  .reveal.is-visible .car-beam {
+    opacity: 1;
+    animation: none;
+  }
+}
